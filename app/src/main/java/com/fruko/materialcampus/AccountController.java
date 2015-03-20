@@ -26,6 +26,14 @@ public class AccountController
         return am.addAccountExplicitly( newAccount, password, data );
     }
 
+    public int getNumAccounts()
+    {
+        AccountManager am = AccountManager.get( context );
+        Account[] accounts = am.getAccountsByType( accountType );
+
+        return accounts.length;
+    }
+
     public AccountDataContainer getAccount( int which )
     {
         AccountManager am = AccountManager.get( context );
@@ -42,6 +50,18 @@ public class AccountController
 
             return new AccountDataContainer( username, password, district );
         }
+    }
+
+    public AccountDataContainer[] getAccounts()
+    {
+        AccountDataContainer[] a = new AccountDataContainer[ getNumAccounts() ];
+
+        for (int i=0;i < getNumAccounts();++i)
+        {
+            a[i] = getAccount(i);
+        }
+
+        return a;
     }
 
     public AccountDataContainer getFirstAccount( )

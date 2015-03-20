@@ -131,12 +131,6 @@ public class ClassesActivity extends ActionBarActivity
         super.onDestroy();
     }
 
-    @Override
-    public void onBackPressed()
-    {
-        moveTaskToBack( true );
-    }
-
     private class UserRefreshTask extends AsyncTask<Void, Void, Boolean>
     {
         private SwipeRefreshLayout swipeLayout;
