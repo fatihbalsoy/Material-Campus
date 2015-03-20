@@ -82,10 +82,12 @@ public class LoginActivity extends ActionBarActivity
 
         accounts = new AccountController( this );
 
+        /*
         AccountController.AccountDataContainer d = accounts.getFirstAccount();
 
         if (d != null)
             login( d.district, d.username, d.password, false );
+            */
     }
 
     public void attemptLogin()
@@ -197,7 +199,6 @@ public class LoginActivity extends ActionBarActivity
         private final String mPassword;
         private final String mDistrict;
         private final boolean saving;
-
         private final Activity parentActivity;
 
         UserLoginTask( Activity a, String district, String user, String password, boolean save )
@@ -217,6 +218,11 @@ public class LoginActivity extends ActionBarActivity
         }
 
         @Override
+        protected void onPreExecute() {
+            mLoginFormView.setVisibility( View.INVISIBLE );
+        }
+
+        @Override
         protected void onPostExecute(final Boolean success)
         {
             mAuthTask = null;
@@ -224,14 +230,17 @@ public class LoginActivity extends ActionBarActivity
 
             if (success)
             {
-                if (saving)
-                    accounts.saveAccount( mUser, mPassword, mDistrict );
+                if (saving && accounts.saveAccount(mUser, mPassword, mDistrict) == false)
+                        System.out.println("failed to save account");
 
-                Intent intent = new Intent( parentActivity, ClassesActivity.class );
+                finish();
+                Intent intent = new Intent( parentActivity, AccountListActivity.class );
                 startActivity( intent );
             }
             else
             {
+                mLoginFormView.setVisibility( View.VISIBLE );
+
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }
@@ -243,7 +252,6 @@ public class LoginActivity extends ActionBarActivity
             mAuthTask = null;
             showProgress(false);
         }
-
     }
 }
 
