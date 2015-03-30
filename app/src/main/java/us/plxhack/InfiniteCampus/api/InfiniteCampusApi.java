@@ -96,14 +96,19 @@ public class InfiniteCampusApi
 
                 for (int j=0;j < tasks.size();++j)
                 {
-                    if (tasks.get(j).getAttributeValue("name").equalsIgnoreCase("final"))
+                    if (tasks.get(j).getChildCount() != 0)
+                    {
                         finalTask = tasks.get(j);
+
+                        if (finalTask.getFirstChildElement("tasks") != null)
+                            finalTask = finalTask.getFirstChildElement("tasks").getFirstChildElement("ClassbookTask");
+                    }
                 }
 
                 c.percentage = Float.valueOf(finalTask.getAttributeValue("percentage"));
                 c.letterGrade = finalTask.getAttributeValue("letterGrade").charAt(0);
 
-                Element finalTaskGroups = finalTask.getFirstChildElement("tasks").getFirstChildElement("ClassbookTask").getFirstChildElement("groups");
+                Element finalTaskGroups = finalTask.getFirstChildElement("groups");
 
                 for (int j=0;j < finalTaskGroups.getChildCount();++j)
                 {
