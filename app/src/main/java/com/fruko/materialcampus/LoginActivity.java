@@ -51,6 +51,8 @@ public class LoginActivity extends AccountAuthenticatorActivity
 
     private AccountController accounts;
 
+    private boolean isVisible = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -92,6 +94,20 @@ public class LoginActivity extends AccountAuthenticatorActivity
         if (d != null)
             login( d.district, d.username, d.password, false );
             */
+    }
+
+    @Override
+    protected void onResume( )
+    {
+        super.onResume();
+        isVisible = true;
+    }
+
+    @Override
+    protected void onPause( )
+    {
+        super.onPause();
+        isVisible = false;
     }
 
     public void attemptLogin()
@@ -205,6 +221,8 @@ public class LoginActivity extends AccountAuthenticatorActivity
         private final boolean saving;
         private final Activity parentActivity;
 
+        private boolean exceptionThrown = false;
+
         UserLoginTask( Activity a, String district, String user, String password, boolean save )
         {
             parentActivity = a;
@@ -218,7 +236,17 @@ public class LoginActivity extends AccountAuthenticatorActivity
         @Override
         protected Boolean doInBackground(Void... params)
         {
-            return InfiniteCampusApi.login( mDistrict, mUser, mPassword );
+            try
+            {
+                return InfiniteCampusApi.login(mDistrict, mUser, mPassword);
+            }
+            catch (Exception e)
+            {
+                exceptionThrown = true;
+                e.printStackTrace();
+
+                return false;
+            }
         }
 
         @Override
@@ -233,6 +261,9 @@ public class LoginActivity extends AccountAuthenticatorActivity
             showProgress(false);
 
             if (success)
+                System.out.println("logged in");
+
+            if (success && isVisible)
             {
                 if (saving && !accounts.saveAccount(mUser, mPassword, mDistrict))
                         System.out.println("failed to save account");
@@ -241,11 +272,15 @@ public class LoginActivity extends AccountAuthenticatorActivity
                 Intent intent = new Intent( parentActivity, AccountListActivity.class );
                 startActivity( intent );
             }
-            else
+            else if (!success)
             {
                 mLoginFormView.setVisibility( View.VISIBLE );
 
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                if (exceptionThrown)
+                    mPasswordView.setError(getString(R.string.error_exception));
+                else
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+
                 mPasswordView.requestFocus();
             }
         }
