@@ -3,5 +3,6 @@
     android:accountType="com.fruko.materialcampus"
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
-    android:smallIcon="@mipmap/ic_launcher">
+    android:smallIcon="@mipmap/ic_launcher"
+    android:accountPreferences="@xml/account_prefs">
 </account-authenticator>

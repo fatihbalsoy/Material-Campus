@@ -1,5 +1,9 @@
 package com.fruko.materialcampus;
 
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
+import android.accounts.NetworkErrorException;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -30,7 +34,7 @@ import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 import us.plxhack.InfiniteCampus.api.Student;
 
 
-public class LoginActivity extends ActionBarActivity
+public class LoginActivity extends AccountAuthenticatorActivity
 {
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -230,7 +234,7 @@ public class LoginActivity extends ActionBarActivity
 
             if (success)
             {
-                if (saving && accounts.saveAccount(mUser, mPassword, mDistrict) == false)
+                if (saving && !accounts.saveAccount(mUser, mPassword, mDistrict))
                         System.out.println("failed to save account");
 
                 finish();

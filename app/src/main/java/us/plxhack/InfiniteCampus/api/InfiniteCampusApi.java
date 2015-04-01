@@ -53,7 +53,10 @@ public class InfiniteCampusApi
 				
 		//Try to log in with given district info, username, and pass
 		if (!core.attemptLogin(username, password, core.getDistrictInfo()))
-			return false;
+        {
+            System.out.println("Login Failed returning");
+            return false;
+        }
 
 		try
 		{
@@ -119,7 +122,11 @@ public class InfiniteCampusApi
                     category.earnedPoints = Float.valueOf( groupElement.getAttributeValue("pointsEarned") );
                     category.totalPoints = Float.valueOf( groupElement.getAttributeValue("totalPointsPossible") );
                     category.weight = Float.valueOf( groupElement.getAttributeValue("weight") );
-                    category.letterGrade = groupElement.getAttributeValue("letterGrade").charAt(0);
+                    String gradeLetter = groupElement.getAttributeValue("letterGrade");
+                    if (gradeLetter != null)
+                        category.letterGrade = gradeLetter;
+                    else
+                        category.letterGrade = "N/A";
 
                     Element activities = groupElement.getFirstChildElement("activities");
 
@@ -189,6 +196,7 @@ public class InfiniteCampusApi
         _districtCode = districtCode;
         _username = username;
         _password = password;
+        System.out.println("Logged in and got data!");
 		return true;
 	}
 

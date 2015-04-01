@@ -212,11 +212,15 @@ public class AccountListActivity extends ActionBarActivity
         @Override
         protected Boolean doInBackground(Void... params)
         {
-            return InfiniteCampusApi.login(mDistrict, mUser, mPassword);
+            Boolean result = InfiniteCampusApi.login(mDistrict, mUser, mPassword);
+            System.out.println("Login returned: " + result);
+            return result;
         }
+
         @Override
         protected void onPostExecute(final Boolean success)
         {
+            System.out.println("Succeeded: " + success);
             loggingIn = false;
 
             loginTask = null;

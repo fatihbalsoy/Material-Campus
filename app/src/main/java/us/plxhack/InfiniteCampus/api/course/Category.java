@@ -9,7 +9,7 @@ public class Category
     public float percentage;
     public float earnedPoints, totalPoints;
     public float weight;
-    public char letterGrade;
+    public String letterGrade;
 
     public ArrayList<Activity> activities;
 

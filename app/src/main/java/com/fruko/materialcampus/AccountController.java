@@ -1,7 +1,9 @@
 package com.fruko.materialcampus;
 
 import android.accounts.Account;
+import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
+import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.os.Bundle;
 

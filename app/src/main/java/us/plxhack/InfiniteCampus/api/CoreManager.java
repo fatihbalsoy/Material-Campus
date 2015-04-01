@@ -51,9 +51,12 @@ public class CoreManager
             String encodedUser = URLEncoder.encode( user, "UTF-8" );
             String encodedPass = URLEncoder.encode( pass, "UTF-8" );
 
-			URL loginURL = new URL( distInfo.getDistrictBaseURL() + "/verify.jsp?nonBrowser=true&username=" + encodedUser + "&password=" + encodedPass + "&appName=" + distInfo.getDistrictAppName());
+			URL loginURL = new URL( distInfo.getDistrictBaseURL() + "verify.jsp?nonBrowser=true&username=" + encodedUser + "&password=" + encodedPass + "&appName=" + distInfo.getDistrictAppName());
+            System.out.println("Attempting login with url: " + loginURL);
 			String response = getContent(loginURL, true);
+            System.out.println("Responded with: " + response);
 			if(response.trim().equalsIgnoreCase("<authentication>success</authentication>"))
+                System.out.println("Trim returning true");
 				return true;
 		}
 		catch(Exception e)
@@ -69,7 +72,7 @@ public class CoreManager
 		try
 		{
 			HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-			con.setRequestProperty("Cookie", cookies); //Retain our sessoin
+			con.setRequestProperty("Cookie", cookies); //Retain our session
 			BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String input;
 			while ((input = br.readLine()) != null)
