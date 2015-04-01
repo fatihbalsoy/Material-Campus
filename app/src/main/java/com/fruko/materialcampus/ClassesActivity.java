@@ -175,12 +175,12 @@ public class ClassesActivity extends ActionBarActivity
             this.startActivity(go);
             return true;
         }
-        else if (id == R.id.settings)
+        /*else if (id == R.id.settings)
         {
             Intent go = new Intent(this, SettingsActivity.class);
             this.startActivity(go);
             return true;
-        }
+        }*/
         return super.onOptionsItemSelected(item);
     }
 }
