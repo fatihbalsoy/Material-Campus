@@ -10,4 +10,5 @@
     <string name="error_invalid_password">This password is invalid</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
+    <string name="error_exception">Error occurred while logging in</string>
 </resources>

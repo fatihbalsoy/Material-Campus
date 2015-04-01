@@ -37,6 +37,8 @@ public class AccountListActivity extends ActionBarActivity
     private AccountController accounts;
 
     private boolean loggingIn = false;
+    private boolean isVisible = true;
+    private boolean changeActivityWhenVisible = false;
 
     private void startActivity( Class otherActivity )
     {
@@ -124,10 +126,15 @@ public class AccountListActivity extends ActionBarActivity
     {
         super.onResume();
 
+        isVisible = true;
+
         setupAccountsList();
 
         if (!loggingIn)
             baseView.setVisibility( View.VISIBLE );
+
+        if (changeActivityWhenVisible)
+            startActivity(ClassesActivity.class);
     }
 
     protected void onStart()
@@ -143,6 +150,7 @@ public class AccountListActivity extends ActionBarActivity
     protected void onPause()
     {
         super.onPause();
+        isVisible = false;
     }
 
     protected void onStop()
@@ -212,22 +220,34 @@ public class AccountListActivity extends ActionBarActivity
         @Override
         protected Boolean doInBackground(Void... params)
         {
-            Boolean result = InfiniteCampusApi.login(mDistrict, mUser, mPassword);
-            System.out.println("Login returned: " + result);
+            Boolean result = false;
+            try
+            {
+                result = InfiniteCampusApi.login(mDistrict, mUser, mPassword);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
             return result;
         }
 
         @Override
         protected void onPostExecute(final Boolean success)
         {
-            System.out.println("Succeeded: " + success);
             loggingIn = false;
-
             loginTask = null;
+
             showProgress(false);
 
             if (success)
-                startActivity( ClassesActivity.class );
+            {
+                if (isVisible)
+                    startActivity(ClassesActivity.class);
+                else
+                    changeActivityWhenVisible = true;
+            }
             else
                 baseView.setVisibility( View.VISIBLE );
         }
