@@ -66,7 +66,6 @@ public class ClassGradesActivity extends ActionBarActivity
                     percent = new DecimalFormat("#.00").format(a.percentage) + "%";
 
                 String[] assignment = { a.name, percent };
-                System.out.println("Adding " + assignment[0] + " to " + title[0]);
                 category.add(assignment);
             }
             gradesArray.add(category);
@@ -93,8 +92,6 @@ public class ClassGradesActivity extends ActionBarActivity
                 TextView name = (TextView) view.findViewById(R.id.category);
                 name.setText(assignments.get(0)[0]);
 
-                System.out.println("Assignments: " + assignments.size());
-
                 LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
                 list.removeAllViews();
                 for(int i = 1; i < assignments.size(); i++)
@@ -104,7 +101,7 @@ public class ClassGradesActivity extends ActionBarActivity
                     assignName.setText(assignments.get(i)[0]);
                     TextView grade = (TextView) child.findViewById(R.id.grade);
                     grade.setText(assignments.get(i)[1]);
-                    final int a = i;
+                    final int a = i-1;
                     child.setOnClickListener(new View.OnClickListener()
                     {
                         @Override
@@ -117,7 +114,6 @@ public class ClassGradesActivity extends ActionBarActivity
                             startActivity(intent);
                         }
                     });
-                    System.out.println("Adding View " + assignments.get(i)[0] + " to " + assignments.get(0)[0]);
                     list.addView(child);
                 }
 
