@@ -89,10 +89,25 @@ public class ClassGradesActivity extends ActionBarActivity
 
                 List<String[]> assignments = gradesArray.get(position);
 
+                final LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
                 TextView name = (TextView) view.findViewById(R.id.category);
                 name.setText(assignments.get(0)[0]);
+                name.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        if(list.getVisibility() == View.GONE)
+                        {
+                            list.setVisibility(View.VISIBLE);
+                        }
+                        else
+                        {
+                            list.setVisibility(View.GONE);
+                        }
+                    }
+                });
 
-                LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
                 list.removeAllViews();
                 for(int i = 1; i < assignments.size(); i++)
                 {
@@ -102,11 +117,9 @@ public class ClassGradesActivity extends ActionBarActivity
                     TextView grade = (TextView) child.findViewById(R.id.grade);
                     grade.setText(assignments.get(i)[1]);
                     final int a = i-1;
-                    child.setOnClickListener(new View.OnClickListener()
-                    {
+                    child.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View view)
-                        {
+                        public void onClick(View view) {
                             Intent intent = new Intent(c, AssignmentActivity.class);
                             intent.putExtra(SELECTED_COURSE_ID, getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
                             intent.putExtra(SELECTED_CATEGORY_ID, position);
