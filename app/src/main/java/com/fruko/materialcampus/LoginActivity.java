@@ -39,19 +39,19 @@ public class LoginActivity extends AccountAuthenticatorActivity
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    protected UserLoginTask mAuthTask = null;
 
     // UI references.
-    private EditText mUsernameView;
-    private EditText mDistrictView;
-    private EditText mPasswordView;
-    private CheckBox mSavingInfo;
-    private View mProgressView;
-    private View mLoginFormView;
+    protected EditText mUsernameView;
+    protected EditText mDistrictView;
+    protected EditText mPasswordView;
+    protected CheckBox mSavingInfo;
+    protected View mProgressView;
+    protected View mLoginFormView;
 
-    private AccountController accounts;
+    protected AccountController accounts;
 
-    private boolean isVisible = true;
+    protected boolean isVisible = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -166,10 +166,10 @@ public class LoginActivity extends AccountAuthenticatorActivity
         }
     }
 
-    void login( String district, String username, String password, boolean save )
+    protected void login( String district, String username, String password, boolean save )
     {
         showProgress(true);
-        mAuthTask = new UserLoginTask( this, district, username, password, save );
+        mAuthTask = new UserLoginTask( this, district, username, password, save, true );
         mAuthTask.execute((Void) null);
     }
 
@@ -219,11 +219,12 @@ public class LoginActivity extends AccountAuthenticatorActivity
         private final String mPassword;
         private final String mDistrict;
         private final boolean saving;
+        private final boolean goBack;
         private final Activity parentActivity;
 
         private boolean exceptionThrown = false;
 
-        UserLoginTask( Activity a, String district, String user, String password, boolean save )
+        UserLoginTask( Activity a, String district, String user, String password, boolean save, boolean back )
         {
             parentActivity = a;
 
@@ -231,6 +232,7 @@ public class LoginActivity extends AccountAuthenticatorActivity
             mUser = user;
             mPassword = password;
             saving = save;
+            goBack = back;
         }
 
         @Override
@@ -260,17 +262,28 @@ public class LoginActivity extends AccountAuthenticatorActivity
             mAuthTask = null;
             showProgress(false);
 
-            if (success)
-                System.out.println("logged in");
-
             if (success && isVisible)
             {
                 if (saving && !accounts.saveAccount(mUser, mPassword, mDistrict))
-                        System.out.println("failed to save account");
+                    System.out.println("failed to save account");
 
-                finish();
-                Intent intent = new Intent( parentActivity, AccountListActivity.class );
-                startActivity( intent );
+                if (goBack)
+                {
+                    finish();
+                    Intent intent = new Intent(parentActivity, AccountListActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    final Intent intent = new Intent();
+                    intent.putExtra( AccountManager.KEY_ACCOUNT_NAME, mUser );
+                    intent.putExtra( AccountManager.KEY_ACCOUNT_TYPE, AccountController.accountType );
+
+                    setAccountAuthenticatorResult( intent.getExtras() );
+                    setResult( RESULT_OK, intent );
+
+                    finish();
+                }
             }
             else if (!success)
             {
