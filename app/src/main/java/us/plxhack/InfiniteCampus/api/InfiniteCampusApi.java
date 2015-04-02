@@ -3,6 +3,7 @@ package us.plxhack.InfiniteCampus.api;
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -65,23 +66,40 @@ public class InfiniteCampusApi
             Document doc = builder.build(new ByteArrayInputStream(core.getContent(infoURL, false).getBytes()));
             Element root = doc.getRootElement();
 
+            if(root == null)
+            {
+                System.out.println("Root element is null");
+            }
+            else
+            {
+                System.out.println("Root element appears fine");
+            }
             userInfo = new Student(root.getFirstChildElement("PortalOutline").getFirstChildElement("Family").getFirstChildElement("Student"), core.getDistrictInfo());
         }
 
+        List<Element> roots = new ArrayList<>();
         //Get classbook information from formatted web page
-        URL infoURL2 = getFormattedURL("prism?&x=portal.PortalClassbook-getClassbookForAllSections&mode=classbook&personID=" + userInfo.personID + "&structureID=" + userInfo.calendars.get(0).schedules.get(0).id + "&calendarID=" + userInfo.calendars.get(0).calendarID);
-        Document doc2 = builder.build(new ByteArrayInputStream(core.getContent(infoURL2, false).getBytes()));
+        for(int i = 0; i < userInfo.calendars.size(); i++)
+        {
+            URL infoURL2 = getFormattedURL("prism?&x=portal.PortalClassbook-getClassbookForAllSections&mode=classbook&personID=" + userInfo.personID + "&structureID=" + userInfo.calendars.get(i).schedules.get(0).id + "&calendarID=" + userInfo.calendars.get(i).calendarID);
+            Document doc2 = builder.build(new ByteArrayInputStream(core.getContent(infoURL2, false).getBytes()));
+            Element root = doc2.getRootElement().getFirstChildElement("SectionClassbooks");
+            roots.add(root);
+        }
 
-        Element root = doc2.getRootElement().getFirstChildElement("SectionClassbooks");
         ArrayList<Element> courseElements = new ArrayList<Element>();
 
-        for (int i=0;i < root.getChildCount();++i)
+        for(int j = 0; j < roots.size(); j++)
         {
-            Element portalClassbook = root.getChildElements().get(i);
-            Element studentList = portalClassbook.getFirstChildElement("ClassbookDetail").getFirstChildElement("StudentList");
+            Element root = roots.get(j);
+            for (int i=0;i < root.getChildCount();++i)
+            {
+                Element portalClassbook = root.getChildElements().get(i);
+                Element studentList = portalClassbook.getFirstChildElement("ClassbookDetail").getFirstChildElement("StudentList");
 
-            if (studentList.getChildCount() != 0)
-                courseElements.add( portalClassbook.getFirstChildElement("ClassbookDetail").getFirstChildElement("StudentList").getChildElements().get(0).getFirstChildElement("Classbook") );
+                if (studentList.getChildCount() != 0)
+                    courseElements.add( portalClassbook.getFirstChildElement("ClassbookDetail").getFirstChildElement("StudentList").getChildElements().get(0).getFirstChildElement("Classbook") );
+            }
         }
 
         ArrayList<Course> courses = new ArrayList<Course>();
