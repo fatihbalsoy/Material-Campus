@@ -101,7 +101,7 @@ public class ClassGradesActivity extends ActionBarActivity
                     assignName.setText(assignments.get(i)[0]);
                     TextView grade = (TextView) child.findViewById(R.id.grade);
                     grade.setText(assignments.get(i)[1]);
-                    final int a = i;
+                    final int a = i-1;
                     child.setOnClickListener(new View.OnClickListener()
                     {
                         @Override
