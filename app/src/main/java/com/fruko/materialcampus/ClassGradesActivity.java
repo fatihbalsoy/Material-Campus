@@ -1,6 +1,7 @@
 package com.fruko.materialcampus;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -13,11 +14,13 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 import us.plxhack.InfiniteCampus.api.course.Category;
@@ -29,6 +32,7 @@ public class ClassGradesActivity extends ActionBarActivity
 
     public final static String SELECTED_COURSE_ID = "com.fruko.materialcampus.SELECTED_COURSE_ID";
     public final static String SELECTED_ASSIGNMENT_ID = "com.fruko.materialcampus.SELECTED_ASSIGNMENT_ID";
+    public final static String SELECTED_CATEGORY_ID = "com.fruko.materialcampus.SELECTED_CATEGORY_ID";
 
     private Course course;
 
@@ -41,13 +45,17 @@ public class ClassGradesActivity extends ActionBarActivity
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        final ArrayList<String[]> gradesArray = new ArrayList<>();
+        final List<List<String[]>> gradesArray = new ArrayList<>();
 
-        for (int i=0;i < course.gradeCategories.size();++i)
+        for (int i = 0; i < course.gradeCategories.size(); i++)
         {
             Category c = course.gradeCategories.get(i);
 
-            for (int j=0;j < c.activities.size();++j)
+            String[] title = { c.name, "" };
+            List<String[]> category = new ArrayList<>();
+            category.add(title);
+
+            for (int j = 0; j < c.activities.size(); j++)
             {
                 us.plxhack.InfiniteCampus.api.course.Activity a = c.activities.get(j);
 
@@ -57,46 +65,66 @@ public class ClassGradesActivity extends ActionBarActivity
                 else
                     percent = new DecimalFormat("#.00").format(a.percentage) + "%";
 
-                String[] newArray = { a.name, percent };
-                gradesArray.add(newArray);
+                String[] assignment = { a.name, percent };
+                System.out.println("Adding " + assignment[0] + " to " + title[0]);
+                category.add(assignment);
             }
+            gradesArray.add(category);
         }
 
         gradesList = (ListView)findViewById( R.id.class_grades );
 
-        gradesList.setAdapter(new ArrayAdapter<String[]>(this, R.layout.assignment_list_item, R.id.name, gradesArray)
+        final Context c = this;
+
+        gradesList.setAdapter(new ArrayAdapter<List<String[]>>(this, R.layout.category_list_item, R.id.category, gradesArray)
         {
             public View getView(final int position, View convertView, ViewGroup parent)
             {
                 View view;
-                if (convertView == null) {
+                if (convertView == null)
+                {
                     LayoutInflater infl = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                    convertView = infl.inflate(R.layout.assignment_list_item, parent, false);
+                    convertView = infl.inflate(R.layout.category_list_item, parent, false);
                 }
                 view = super.getView(position, convertView, parent);
 
-                TextView name = (TextView) view.findViewById(R.id.name);
-                name.setText(gradesArray.get(position)[0]);
-                TextView grade = (TextView) view.findViewById(R.id.grade);
-                grade.setText(gradesArray.get(position)[1]);
+                List<String[]> assignments = gradesArray.get(position);
+
+                TextView name = (TextView) view.findViewById(R.id.category);
+                name.setText(assignments.get(0)[0]);
+
+                System.out.println("Assignments: " + assignments.size());
+
+                LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
+                list.removeAllViews();
+                for(int i = 1; i < assignments.size(); i++)
+                {
+                    View child = getLayoutInflater().inflate(R.layout.assignment_list_item, null);
+                    TextView assignName = (TextView) child.findViewById(R.id.name);
+                    assignName.setText(assignments.get(i)[0]);
+                    TextView grade = (TextView) child.findViewById(R.id.grade);
+                    grade.setText(assignments.get(i)[1]);
+                    final int a = i;
+                    child.setOnClickListener(new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View view)
+                        {
+                            Intent intent = new Intent(c, AssignmentActivity.class);
+                            intent.putExtra(SELECTED_COURSE_ID, getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
+                            intent.putExtra(SELECTED_CATEGORY_ID, position);
+                            intent.putExtra(SELECTED_ASSIGNMENT_ID, a);
+                            startActivity(intent);
+                        }
+                    });
+                    System.out.println("Adding View " + assignments.get(i)[0] + " to " + assignments.get(0)[0]);
+                    list.addView(child);
+                }
+
                 return view;
             }
         });
 
-        final Activity a = this;
-
-        gradesList.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
-
-                Intent intent = new Intent(a, AssignmentActivity.class);
-                intent.putExtra(SELECTED_COURSE_ID, getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
-                intent.putExtra(SELECTED_ASSIGNMENT_ID, position);
-                startActivity(intent);
-            }
-        });
     }
 
     protected void onStart()

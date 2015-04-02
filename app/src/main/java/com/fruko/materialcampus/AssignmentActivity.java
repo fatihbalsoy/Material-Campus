@@ -32,16 +32,17 @@ public class AssignmentActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_assignment);
         course = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0));
-        int counter = 0;
         for(int i = 0; i < course.gradeCategories.size(); i++)
         {
-            for(int j = 0; j < course.gradeCategories.get(i).activities.size(); j++)
+            if(i == getIntent().getIntExtra(ClassGradesActivity.SELECTED_CATEGORY_ID, 0))
             {
-                if(counter == getIntent().getIntExtra(ClassGradesActivity.SELECTED_ASSIGNMENT_ID, 0))
+                for (int j = 0; j < course.gradeCategories.get(i).activities.size(); j++)
                 {
-                    assignment = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0)).gradeCategories.get(i).activities.get(j);
+                    if (j == getIntent().getIntExtra(ClassGradesActivity.SELECTED_ASSIGNMENT_ID, 0))
+                    {
+                        assignment = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0)).gradeCategories.get(i).activities.get(j);
+                    }
                 }
-                counter++;
             }
         }
         setTitle(assignment.name + " - " +  assignment.percentage);
