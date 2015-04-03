@@ -17,7 +17,15 @@ public class Teacher
     public Teacher( String commaSeparated )
     {
         int commaPos = commaSeparated.indexOf(',');
-        lastName = commaSeparated.substring(0,commaPos);
-        firstName = commaSeparated.substring(commaPos+2);
+        if(commaPos != -1)
+        {
+            lastName = commaSeparated.substring(0,commaPos);
+            firstName = commaSeparated.substring(commaPos+2);
+        }
+        else
+        {
+            firstName = "Unknown";
+            lastName = "Teacher";
+        }
     }
 }

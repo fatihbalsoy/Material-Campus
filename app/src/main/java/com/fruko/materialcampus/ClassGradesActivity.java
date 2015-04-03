@@ -66,7 +66,6 @@ public class ClassGradesActivity extends ActionBarActivity
                     percent = new DecimalFormat("#.00").format(a.percentage) + "%";
 
                 String[] assignment = { a.name, percent };
-                System.out.println("Adding " + assignment[0] + " to " + title[0]);
                 category.add(assignment);
             }
             gradesArray.add(category);
@@ -90,12 +89,25 @@ public class ClassGradesActivity extends ActionBarActivity
 
                 List<String[]> assignments = gradesArray.get(position);
 
+                final LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
                 TextView name = (TextView) view.findViewById(R.id.category);
                 name.setText(assignments.get(0)[0]);
+                name.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        if(list.getVisibility() == View.GONE)
+                        {
+                            list.setVisibility(View.VISIBLE);
+                        }
+                        else
+                        {
+                            list.setVisibility(View.GONE);
+                        }
+                    }
+                });
 
-                System.out.println("Assignments: " + assignments.size());
-
-                LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
                 list.removeAllViews();
                 for(int i = 1; i < assignments.size(); i++)
                 {
@@ -104,12 +116,10 @@ public class ClassGradesActivity extends ActionBarActivity
                     assignName.setText(assignments.get(i)[0]);
                     TextView grade = (TextView) child.findViewById(R.id.grade);
                     grade.setText(assignments.get(i)[1]);
-                    final int a = i;
-                    child.setOnClickListener(new View.OnClickListener()
-                    {
+                    final int a = i-1;
+                    child.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onClick(View view)
-                        {
+                        public void onClick(View view) {
                             Intent intent = new Intent(c, AssignmentActivity.class);
                             intent.putExtra(SELECTED_COURSE_ID, getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
                             intent.putExtra(SELECTED_CATEGORY_ID, position);
@@ -117,7 +127,6 @@ public class ClassGradesActivity extends ActionBarActivity
                             startActivity(intent);
                         }
                     });
-                    System.out.println("Adding View " + assignments.get(i)[0] + " to " + assignments.get(0)[0]);
                     list.addView(child);
                 }
 
@@ -175,12 +184,12 @@ public class ClassGradesActivity extends ActionBarActivity
             this.startActivity(go);
             return true;
         }
-        else if (id == R.id.settings)
+        /*else if (id == R.id.settings)
         {
             Intent go = new Intent(this, SettingsActivity.class);
             this.startActivity(go);
             return true;
-        }
+        }*/
         return super.onOptionsItemSelected(item);
     }
 }

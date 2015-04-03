@@ -24,7 +24,15 @@ public class ScheduleStructure
 		grade = sceduleElement.getAttributeValue("grade");
 		active = sceduleElement.getAttributeValue("active").equalsIgnoreCase("true");
 		primary = sceduleElement.getAttributeValue("primary");
-		is_default = sceduleElement.getAttributeValue("default").equalsIgnoreCase("true");
+        if(sceduleElement.getAttributeValue("default") != null)
+        {
+            is_default = sceduleElement.getAttributeValue("default").equalsIgnoreCase("true");
+        }
+        else
+        {
+            is_default = false;
+        }
+
 		try
 		{
 			startDate = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH).parse(sceduleElement.getAttributeValue("startDate"));

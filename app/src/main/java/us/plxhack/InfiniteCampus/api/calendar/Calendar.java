@@ -18,6 +18,7 @@ public class Calendar
 		schoolID = calendar.getAttributeValue("schoolID");
 		calendarID = calendar.getAttributeValue("calendarID");
 		endYear = calendar.getAttributeValue("endYear");
+        System.out.println("Calendar info string: " + getInfoString());
 		for(int i = 0; i < calendar.getChildElements().size(); i++)
 			schedules.add(new ScheduleStructure(calendar.getChildElements().get(i)));
 	}
