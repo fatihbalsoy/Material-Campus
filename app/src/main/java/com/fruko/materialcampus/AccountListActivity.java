@@ -259,6 +259,8 @@ public class AccountListActivity extends ActionBarActivity
     public void onBackPressed()
     {
         super.onBackPressed();
-        loginTask.cancel(true);
+
+        if (loginTask != null)
+            loginTask.cancel(true);
     }
 }
