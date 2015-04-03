@@ -9,6 +9,6 @@ public class AccountService extends Service
     @Override
     public IBinder onBind(Intent intent)
     {
-        return null;
+        return new AccountAuthenticator(this).getIBinder();
     }
 }

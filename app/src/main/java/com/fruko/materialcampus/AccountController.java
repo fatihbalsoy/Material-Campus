@@ -9,7 +9,7 @@ import android.os.Bundle;
 
 public class AccountController
 {
-    private static String accountType = "com.fruko.materialcampus";
+    public static final String accountType = "com.fruko.materialcampus";
     private Context context;
 
     public AccountController( Context c )
