@@ -8,8 +8,6 @@ public class AccountLoginActivity extends LoginActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        System.out.println("created accountloginactivity");
     }
 
     @Override
