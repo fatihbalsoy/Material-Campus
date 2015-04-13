@@ -91,14 +91,18 @@ public class InfiniteCampusApi
 
         for(int j = 0; j < roots.size(); j++)
         {
-            Element root = roots.get(j);
-            for (int i=0;i < root.getChildCount();++i)
-            {
-                Element portalClassbook = root.getChildElements().get(i);
-                Element studentList = portalClassbook.getFirstChildElement("ClassbookDetail").getFirstChildElement("StudentList");
 
-                if (studentList.getChildCount() != 0)
-                    courseElements.add( portalClassbook.getFirstChildElement("ClassbookDetail").getFirstChildElement("StudentList").getChildElements().get(0).getFirstChildElement("Classbook") );
+            Element root = roots.get(j);
+            if(root != null)
+            {
+                for (int i=0;i < root.getChildCount();++i)
+                {
+                    Element portalClassbook = root.getChildElements().get(i);
+                    Element studentList = portalClassbook.getFirstChildElement("ClassbookDetail").getFirstChildElement("StudentList");
+
+                    if (studentList.getChildCount() != 0)
+                        courseElements.add( portalClassbook.getFirstChildElement("ClassbookDetail").getFirstChildElement("StudentList").getChildElements().get(0).getFirstChildElement("Classbook") );
+                }
             }
         }
 
