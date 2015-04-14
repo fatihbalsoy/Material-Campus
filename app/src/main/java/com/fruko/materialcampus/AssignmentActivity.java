@@ -1,6 +1,7 @@
 package com.fruko.materialcampus;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
@@ -57,7 +58,7 @@ public class AssignmentActivity extends ActionBarActivity
         dataPoints.add(new String[]{"Due Date", assignment.dueDate});
         dataPoints.add(new String[]{"Letter Grade", assignment.letterGrade});
         dataPoints.add(new String[]{"Percent", Float.toString(assignment.percentage) + "%"});
-        dataPoints.add(new String[]{"Points Earned", Float.toString(assignment.earnedPoints)});
+        dataPoints.add(new String[]{"Points Earned", assignment.earnedPoints});
         dataPoints.add(new String[]{"Points Possible", Float.toString(assignment.totalPoints)});
 
         LinearLayout list = (LinearLayout) findViewById(R.id.datapoints);
@@ -68,6 +69,8 @@ public class AssignmentActivity extends ActionBarActivity
             name.setText(dataPoints.get(i)[0]);
             TextView data = (TextView) child.findViewById(R.id.datapoint);
             data.setText(dataPoints.get(i)[1]);
+            if(data.getText().toString().equals("M"))
+                data.setTextColor(Color.RED);
             list.addView(child);
         }
     }

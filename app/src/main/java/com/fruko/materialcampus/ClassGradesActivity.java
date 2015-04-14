@@ -3,6 +3,7 @@ package com.fruko.materialcampus;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
@@ -60,7 +61,9 @@ public class ClassGradesActivity extends ActionBarActivity
                 us.plxhack.InfiniteCampus.api.course.Activity a = c.activities.get(j);
 
                 String percent = "";
-                if (a.percentage == 0)
+                if (a.missing)
+                    percent = "Missing";
+                else if(a.percentage == 0)
                     percent = "0.00%";
                 else
                     percent = new DecimalFormat("#.00").format(a.percentage) + "%";
@@ -91,6 +94,8 @@ public class ClassGradesActivity extends ActionBarActivity
 
                 final LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
                 TextView name = (TextView) view.findViewById(R.id.category);
+                name.setBackgroundColor(getResources().getColor(R.color.main));
+                name.setTextColor(Color.WHITE);
                 name.setText(assignments.get(0)[0]);
                 name.setOnClickListener(new View.OnClickListener()
                 {
@@ -116,6 +121,8 @@ public class ClassGradesActivity extends ActionBarActivity
                     assignName.setText(assignments.get(i)[0]);
                     TextView grade = (TextView) child.findViewById(R.id.grade);
                     grade.setText(assignments.get(i)[1]);
+                    if(grade.getText().toString().equals("Missing"))
+                        grade.setTextColor(Color.RED);
                     final int a = i-1;
                     child.setOnClickListener(new View.OnClickListener() {
                         @Override

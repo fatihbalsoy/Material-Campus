@@ -9,11 +9,13 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Category"
         android:padding="16dp"
+        android:translationZ="6dp"
         android:id="@+id/category" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:translationZ="0dp"
         android:orientation="vertical"
         android:id="@+id/assignments" />
 

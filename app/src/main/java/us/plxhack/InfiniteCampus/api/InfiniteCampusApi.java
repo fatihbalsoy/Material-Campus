@@ -82,6 +82,7 @@ public class InfiniteCampusApi
         for(int i = 0; i < userInfo.calendars.size(); i++)
         {
             URL infoURL2 = getFormattedURL("prism?&x=portal.PortalClassbook-getClassbookForAllSections&mode=classbook&personID=" + userInfo.personID + "&structureID=" + userInfo.calendars.get(i).schedules.get(0).id + "&calendarID=" + userInfo.calendars.get(i).calendarID);
+            System.out.println("URL: " + infoURL2.toString());
             Document doc2 = builder.build(new ByteArrayInputStream(core.getContent(infoURL2, false).getBytes()));
             Element root = doc2.getRootElement().getFirstChildElement("SectionClassbooks");
             roots.add(root);
@@ -156,9 +157,10 @@ public class InfiniteCampusApi
 
                     Activity a = new Activity( activityElement.getAttributeValue("name") );
                     a.percentage = Float.valueOf( activityElement.getAttributeValue("percentage") );
-                    a.earnedPoints = Float.valueOf( activityElement.getAttributeValue("weightedScore") );
+                    a.earnedPoints = activityElement.getAttributeValue("score");
                     a.totalPoints = Float.valueOf( activityElement.getAttributeValue("weightedTotalPoints") );
                     a.dueDate = activityElement.getAttributeValue("dueDate");
+                    a.missing = Boolean.valueOf(activityElement.getAttributeValue("missing"));
 
                     String letterGrade = activityElement.getAttributeValue("letterGrade");
                     if (letterGrade != null)

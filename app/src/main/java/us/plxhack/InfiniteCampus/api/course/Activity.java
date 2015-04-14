@@ -5,8 +5,10 @@ public class Activity
     public String name;
 
     public float percentage;
-    public float earnedPoints, totalPoints;
+    public float totalPoints;
+    public String earnedPoints;
     public String letterGrade;
+    public boolean missing;
 
     public String dueDate;
 
