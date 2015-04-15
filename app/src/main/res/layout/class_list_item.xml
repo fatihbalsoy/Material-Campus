@@ -33,4 +33,14 @@
         android:layout_below="@+id/name"
         android:layout_alignParentStart="true" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Percent"
+        android:id="@+id/percent"
+        android:layout_alignTop="@+id/teacher"
+        android:layout_alignRight="@+id/grade"
+        android:layout_alignEnd="@+id/grade" />
+
 </RelativeLayout>

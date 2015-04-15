@@ -68,7 +68,7 @@ public class ClassGradesActivity extends ActionBarActivity
                 else
                     percent = new DecimalFormat("#.00").format(a.percentage) + "%";
 
-                String[] assignment = { a.name, percent };
+                String[] assignment = { a.name, percent, a.letterGrade };
                 category.add(assignment);
             }
             gradesArray.add(category);
@@ -120,9 +120,34 @@ public class ClassGradesActivity extends ActionBarActivity
                     TextView assignName = (TextView) child.findViewById(R.id.name);
                     assignName.setText(assignments.get(i)[0]);
                     TextView grade = (TextView) child.findViewById(R.id.grade);
-                    grade.setText(assignments.get(i)[1]);
+                    if(!assignments.get(i)[2].equals("N/A"))
+                    {
+                        grade.setText(assignments.get(i)[1]);
+                    }
+                    else
+                    {
+                        grade.setText("Not Due");
+                    }
+                    switch(assignments.get(i)[2]) {
+                        case "A":
+                            grade.setBackgroundColor(Color.GREEN);
+                            break;
+                        case "B":
+                            grade.setBackgroundColor(Color.parseColor("#ADFF2F"));
+                            break;
+                        case "C":
+                            grade.setBackgroundColor(Color.YELLOW);
+                            break;
+                        case "D":
+                            grade.setBackgroundColor(Color.parseColor("#FFA500"));
+                            break;
+                        case "F":
+                            grade.setBackgroundColor(Color.RED);
+                            break;
+                    }
                     if(grade.getText().toString().equals("Missing"))
                         grade.setTextColor(Color.RED);
+
                     final int a = i-1;
                     child.setOnClickListener(new View.OnClickListener() {
                         @Override

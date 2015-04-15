@@ -2,6 +2,7 @@ package com.fruko.materialcampus;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,7 +40,7 @@ public class ClassesActivity extends ActionBarActivity
         for (int i=0;i < InfiniteCampusApi.userInfo.courses.size(); ++i)
         {
             Course course = InfiniteCampusApi.userInfo.courses.get(i);
-            String[] newArray = {course.getCourseName(), new DecimalFormat("#.00").format(course.getPercent()) + "%", course.getTeacherName()};
+            String[] newArray = {course.getCourseName(), new DecimalFormat("#.00").format(course.getPercent()) + "%", course.getTeacherName(), Character.toString(course.letterGrade)};
             classNameArray.add(newArray);
         }
 
@@ -58,10 +59,33 @@ public class ClassesActivity extends ActionBarActivity
 
                 TextView name = (TextView) view.findViewById(R.id.name);
                 name.setText(classNameArray.get(position)[0]);
-                TextView grade = (TextView) view.findViewById(R.id.grade);
-                grade.setText(classNameArray.get(position)[1]);
+                TextView percent = (TextView) view.findViewById(R.id.percent);
+                percent.setText(classNameArray.get(position)[1]);
                 TextView teacher = (TextView) view.findViewById(R.id.teacher);
                 teacher.setText(classNameArray.get(position)[2]);
+                TextView grade = (TextView) view.findViewById(R.id.grade);
+                grade.setText(classNameArray.get(position)[3]);
+                switch(grade.getText().toString())
+                {
+                    case "A":
+                        grade.setBackgroundColor(Color.GREEN);
+                        break;
+                    case "B":
+                        grade.setBackgroundColor(Color.parseColor("#ADFF2F"));
+                        break;
+                    case "C":
+                        grade.setBackgroundColor(Color.YELLOW);
+                        break;
+                    case "D":
+                        grade.setBackgroundColor(Color.parseColor("#FFA500"));
+                        break;
+                    case "F":
+                        grade.setBackgroundColor(Color.RED);
+                        break;
+                    case "P":
+                        grade.setBackgroundColor(Color.GREEN);
+                        break;
+                }
                 return view;
             }
         });
