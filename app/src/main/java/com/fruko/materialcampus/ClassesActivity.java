@@ -2,6 +2,7 @@ package com.fruko.materialcampus;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -65,26 +66,33 @@ public class ClassesActivity extends ActionBarActivity
                 teacher.setText(classNameArray.get(position)[2]);
                 TextView grade = (TextView) view.findViewById(R.id.grade);
                 grade.setText(classNameArray.get(position)[3]);
-                switch(grade.getText().toString())
+
+
+                SharedPreferences settings = getSharedPreferences("MaterialCampus", 0);
+
+                if(settings.getBoolean("highlightGrade", false))
                 {
-                    case "A":
-                        grade.setBackgroundColor(Color.GREEN);
-                        break;
-                    case "B":
-                        grade.setBackgroundColor(Color.parseColor("#ADFF2F"));
-                        break;
-                    case "C":
-                        grade.setBackgroundColor(Color.YELLOW);
-                        break;
-                    case "D":
-                        grade.setBackgroundColor(Color.parseColor("#FFA500"));
-                        break;
-                    case "F":
-                        grade.setBackgroundColor(Color.RED);
-                        break;
-                    case "P":
-                        grade.setBackgroundColor(Color.GREEN);
-                        break;
+                    switch (grade.getText().toString())
+                    {
+                        case "A":
+                            grade.setBackgroundColor(Color.GREEN);
+                            break;
+                        case "B":
+                            grade.setBackgroundColor(Color.parseColor("#ADFF2F"));
+                            break;
+                        case "C":
+                            grade.setBackgroundColor(Color.YELLOW);
+                            break;
+                        case "D":
+                            grade.setBackgroundColor(Color.parseColor("#FFA500"));
+                            break;
+                        case "F":
+                            grade.setBackgroundColor(Color.RED);
+                            break;
+                        case "P":
+                            grade.setBackgroundColor(Color.GREEN);
+                            break;
+                    }
                 }
                 return view;
             }
@@ -199,12 +207,12 @@ public class ClassesActivity extends ActionBarActivity
             this.startActivity(go);
             return true;
         }
-        /*else if (id == R.id.settings)
+        else if (id == R.id.settings)
         {
             Intent go = new Intent(this, SettingsActivity.class);
             this.startActivity(go);
             return true;
-        }*/
+        }
         return super.onOptionsItemSelected(item);
     }
 }

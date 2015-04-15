@@ -3,6 +3,7 @@ package com.fruko.materialcampus;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -63,6 +64,8 @@ public class ClassGradesActivity extends ActionBarActivity
                 String percent = "";
                 if (a.missing)
                     percent = "Missing";
+                else if(a.letterGrade.equals("N/A"))
+                    percent = "Not Graded";
                 else if(a.percentage == 0)
                     percent = "0.00%";
                 else
@@ -120,30 +123,29 @@ public class ClassGradesActivity extends ActionBarActivity
                     TextView assignName = (TextView) child.findViewById(R.id.name);
                     assignName.setText(assignments.get(i)[0]);
                     TextView grade = (TextView) child.findViewById(R.id.grade);
-                    if(!assignments.get(i)[2].equals("N/A"))
+                    grade.setText(assignments.get(i)[1]);
+
+                    SharedPreferences settings = getSharedPreferences("MaterialCampus", 0);
+
+                    if(settings.getBoolean("highlightGrade", false))
                     {
-                        grade.setText(assignments.get(i)[1]);
-                    }
-                    else
-                    {
-                        grade.setText("Not Due");
-                    }
-                    switch(assignments.get(i)[2]) {
-                        case "A":
-                            grade.setBackgroundColor(Color.GREEN);
-                            break;
-                        case "B":
-                            grade.setBackgroundColor(Color.parseColor("#ADFF2F"));
-                            break;
-                        case "C":
-                            grade.setBackgroundColor(Color.YELLOW);
-                            break;
-                        case "D":
-                            grade.setBackgroundColor(Color.parseColor("#FFA500"));
-                            break;
-                        case "F":
-                            grade.setBackgroundColor(Color.RED);
-                            break;
+                        switch(assignments.get(i)[2]) {
+                            case "A":
+                                grade.setBackgroundColor(Color.GREEN);
+                                break;
+                            case "B":
+                                grade.setBackgroundColor(Color.parseColor("#ADFF2F"));
+                                break;
+                            case "C":
+                                grade.setBackgroundColor(Color.YELLOW);
+                                break;
+                            case "D":
+                                grade.setBackgroundColor(Color.parseColor("#FFA500"));
+                                break;
+                            case "F":
+                                grade.setBackgroundColor(Color.RED);
+                                break;
+                        }
                     }
                     if(grade.getText().toString().equals("Missing"))
                         grade.setTextColor(Color.RED);
