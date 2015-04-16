@@ -93,11 +93,12 @@ public class ClassGradesActivity extends ActionBarActivity
                 }
                 view = super.getView(position, convertView, parent);
 
+                SharedPreferences settings = getSharedPreferences("MaterialCampus", 0);
                 List<String[]> assignments = gradesArray.get(position);
 
                 final LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
                 TextView name = (TextView) view.findViewById(R.id.category);
-                name.setBackgroundColor(getResources().getColor(R.color.main));
+                name.setBackgroundColor(getResources().getColor(R.color.accent));
                 name.setTextColor(Color.WHITE);
                 name.setText(assignments.get(0)[0]);
                 name.setOnClickListener(new View.OnClickListener()
@@ -125,7 +126,6 @@ public class ClassGradesActivity extends ActionBarActivity
                     TextView grade = (TextView) child.findViewById(R.id.grade);
                     grade.setText(assignments.get(i)[1]);
 
-                    SharedPreferences settings = getSharedPreferences("MaterialCampus", 0);
 
                     if(settings.getBoolean("highlightGrade", false))
                     {
