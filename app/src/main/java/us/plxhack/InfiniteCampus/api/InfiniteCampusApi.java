@@ -117,6 +117,7 @@ public class InfiniteCampusApi
 
             Elements tasks = e.getFirstChildElement("tasks").getChildElements();
             Element finalTask = null;
+            List<Element> mainTasks = new ArrayList<>();
 
             for (int j=0;j < tasks.size();++j)
             {
@@ -124,59 +125,73 @@ public class InfiniteCampusApi
                 {
                     finalTask = tasks.get(j);
 
-                    if (finalTask.getFirstChildElement("tasks") != null)
-                        finalTask = finalTask.getFirstChildElement("tasks").getFirstChildElement("ClassbookTask");
+                    System.out.println(finalTask.getAttributeValue("name"));
+                    if(finalTask.getAttributeValue("name").equals("Sem 2"))
+                    {
+                        c.percentage = Float.valueOf(finalTask.getAttributeValue("percentage"));
+                        c.letterGrade = finalTask.getAttributeValue("letterGrade").charAt(0);
+                        mainTasks.add(finalTask);
+                    }
+                    else if(finalTask.getAttributeValue("name").equals("Exam"))
+                    {
+                        mainTasks.add(finalTask);
+                    }
+                    else if(finalTask.getAttributeValue("name").equals("Final"))
+                    {
+                        //c.percentage = Float.valueOf(finalTask.getAttributeValue("percentage"));
+                        //c.letterGrade = finalTask.getAttributeValue("letterGrade").charAt(0);
+                    }
                 }
             }
 
-            c.percentage = Float.valueOf(finalTask.getAttributeValue("percentage"));
-            c.letterGrade = finalTask.getAttributeValue("letterGrade").charAt(0);
-
-            Element finalTaskGroups = finalTask.getFirstChildElement("groups");
-
-            for (int j=0;j < finalTaskGroups.getChildCount();++j)
+            for(int q = 0; q < mainTasks.size(); q++)
             {
-                Element groupElement = finalTaskGroups.getChildElements().get(j);
+                Element finalTaskGroups = mainTasks.get(q).getFirstChildElement("groups");
 
-                Category category = new Category( groupElement.getAttributeValue("name") );
-                category.percentage = Float.valueOf( groupElement.getAttributeValue("percentage") );
-                category.earnedPoints = Float.valueOf( groupElement.getAttributeValue("pointsEarned") );
-                category.totalPoints = Float.valueOf( groupElement.getAttributeValue("totalPointsPossible") );
-                category.weight = Float.valueOf( groupElement.getAttributeValue("weight") );
-                String gradeLetter = groupElement.getAttributeValue("letterGrade");
-                if (gradeLetter != null)
-                    category.letterGrade = gradeLetter;
-                else
-                    category.letterGrade = "N/A";
-
-                Element activities = groupElement.getFirstChildElement("activities");
-
-                for (int k=0;k < activities.getChildCount();++k)
+                for (int j=0;j < finalTaskGroups.getChildCount();++j)
                 {
-                    Element activityElement = activities.getChildElements().get(k);
+                    Element groupElement = finalTaskGroups.getChildElements().get(j);
 
-                    Activity a = new Activity( activityElement.getAttributeValue("name") );
-                    a.percentage = Float.valueOf( activityElement.getAttributeValue("percentage") );
-                    a.earnedPoints = activityElement.getAttributeValue("score");
-                    a.totalPoints = Float.valueOf( activityElement.getAttributeValue("weightedTotalPoints") );
-                    a.dueDate = activityElement.getAttributeValue("dueDate");
-                    a.missing = Boolean.valueOf(activityElement.getAttributeValue("missing"));
-
-                    String letterGrade = activityElement.getAttributeValue("letterGrade");
-                    if (letterGrade != null)
-                        a.letterGrade = letterGrade;
+                    Category category = new Category( groupElement.getAttributeValue("name") );
+                    category.percentage = Float.valueOf( groupElement.getAttributeValue("percentage") );
+                    category.earnedPoints = Float.valueOf( groupElement.getAttributeValue("pointsEarned") );
+                    category.totalPoints = Float.valueOf( groupElement.getAttributeValue("totalPointsPossible") );
+                    category.weight = Float.valueOf( groupElement.getAttributeValue("weight") );
+                    String gradeLetter = groupElement.getAttributeValue("letterGrade");
+                    if (gradeLetter != null)
+                        category.letterGrade = gradeLetter;
                     else
-                        a.letterGrade = "N/A";
+                        category.letterGrade = "N/A";
 
-                    category.activities.add( a );
+                    Element activities = groupElement.getFirstChildElement("activities");
+
+                    for (int k=0;k < activities.getChildCount();++k)
+                    {
+                        Element activityElement = activities.getChildElements().get(k);
+
+                        Activity a = new Activity( activityElement.getAttributeValue("name") );
+                        a.percentage = Float.valueOf( activityElement.getAttributeValue("percentage") );
+                        a.earnedPoints = activityElement.getAttributeValue("score");
+                        a.totalPoints = Float.valueOf( activityElement.getAttributeValue("weightedTotalPoints") );
+                        a.dueDate = activityElement.getAttributeValue("dueDate");
+                        a.missing = Boolean.valueOf(activityElement.getAttributeValue("missing"));
+
+                        String letterGrade = activityElement.getAttributeValue("letterGrade");
+                        if (letterGrade != null)
+                            a.letterGrade = letterGrade;
+                        else
+                            a.letterGrade = "N/A";
+
+                        category.activities.add( a );
+                    }
+
+                    category.sort();
+
+                    c.gradeCategories.add( category );
                 }
-
-                category.sort();
-
-                c.gradeCategories.add( category );
             }
 
-            courses.add( c );
+            courses.add(c);
         }
 
         userInfo.courses = new ArrayList<Course>( );
