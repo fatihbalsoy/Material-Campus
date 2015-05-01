@@ -27,6 +27,7 @@ import java.util.List;
 import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 import us.plxhack.InfiniteCampus.api.course.Category;
 import us.plxhack.InfiniteCampus.api.course.Course;
+import us.plxhack.InfiniteCampus.api.course.Task;
 
 public class ClassGradesActivity extends ActionBarActivity
 {
@@ -44,7 +45,7 @@ public class ClassGradesActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_classgrades);
         course = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
-        setTitle( course.getCourseName() + " - " +  new DecimalFormat("#.00").format(course.getPercent()) + "%");
+        setTitle(course.getCourseName() + " - " + new DecimalFormat("#.00").format(course.getPercent()) + "%");
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -52,9 +53,11 @@ public class ClassGradesActivity extends ActionBarActivity
 
         for (int i = 0; i < course.tasks.size(); i++)
         {
-            for (int k = 0; k < course.tasks.get(i).gradeCategories.size();++k)
+            Task task = course.tasks.get(i);
+
+            for (int k = 0; k < task.gradeCategories.size();++k)
             {
-                Category c = course.tasks.get(i).gradeCategories.get(k);
+                Category c = task.gradeCategories.get(k);
 
                 String cpercent = "";
                 if (c.percentage == 0)
@@ -82,6 +85,7 @@ public class ClassGradesActivity extends ActionBarActivity
                     String[] assignment = {a.name, percent, a.letterGrade};
                     category.add(assignment);
                 }
+
                 gradesArray.add(category);
             }
         }

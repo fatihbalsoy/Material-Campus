@@ -263,9 +263,8 @@ public class InfiniteCampusApi
 
                                 t.addCategory(category);
                             }
-
-                            c.tasks.add( t );
                         }
+                        c.tasks.add(t);
                     }
                 }
 
@@ -302,7 +301,6 @@ public class InfiniteCampusApi
                         break;
                     }
                 }
-
                 if (placement != -1)
                     userInfo.courses.add( placement, courses.get(i) );
                 else
