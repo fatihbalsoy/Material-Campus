@@ -112,7 +112,6 @@ public class LoginActivity extends AccountAuthenticatorActivity
 
     public void attemptLogin()
     {
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         if (mAuthTask != null)
             return;
@@ -162,6 +161,7 @@ public class LoginActivity extends AccountAuthenticatorActivity
         }
         else
         {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
             login( district, username, password, mSavingInfo.isChecked() );
         }
     }
@@ -240,7 +240,7 @@ public class LoginActivity extends AccountAuthenticatorActivity
         {
             try
             {
-                return InfiniteCampusApi.login(mDistrict, mUser, mPassword);
+                return InfiniteCampusApi.login(mDistrict, mUser, mPassword, getApplicationContext());
             }
             catch (Exception e)
             {

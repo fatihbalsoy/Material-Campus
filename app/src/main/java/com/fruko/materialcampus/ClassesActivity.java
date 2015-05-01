@@ -213,6 +213,12 @@ public class ClassesActivity extends ActionBarActivity
             this.startActivity(go);
             return true;
         }
+        else if (id == R.id.recent)
+        {
+            Intent go = new Intent(this, RecentGradesActivity.class);
+            this.startActivity(go);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 }
