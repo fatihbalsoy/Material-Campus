@@ -56,7 +56,13 @@ public class ClassGradesActivity extends ActionBarActivity
             {
                 Category c = course.tasks.get(i).gradeCategories.get(k);
 
-                String[] title = {c.name, ""};
+                String cpercent = "";
+                if (c.percentage == 0)
+                    cpercent = "0.00%";
+                else
+                    cpercent = new DecimalFormat("#.00").format(c.percentage) + "%";
+
+                String[] title = {c.name + " - " + cpercent, ""};
                 List<String[]> category = new ArrayList<>();
                 category.add(title);
 
@@ -100,6 +106,7 @@ public class ClassGradesActivity extends ActionBarActivity
                 List<String[]> assignments = gradesArray.get(position);
 
                 final LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
+
                 TextView name = (TextView) view.findViewById(R.id.category);
                 name.setBackgroundColor(getResources().getColor(R.color.accent));
                 name.setTextColor(Color.WHITE);
