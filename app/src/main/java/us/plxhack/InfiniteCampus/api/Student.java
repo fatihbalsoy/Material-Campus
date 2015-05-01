@@ -54,9 +54,6 @@ public class Student
 		for(Calendar c : calendars)
 			userInfo += "\n" + c.getInfoString();
 
-        for (Course cb : courses)
-            cb.printDebugInfo();
-
 		return userInfo;
 	}
 }

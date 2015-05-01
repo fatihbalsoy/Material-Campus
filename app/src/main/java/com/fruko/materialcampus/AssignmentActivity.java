@@ -36,15 +36,16 @@ public class AssignmentActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_assignment);
         course = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0));
-        for(int i = 0; i < course.gradeCategories.size(); i++)
+        int task = getIntent().getIntExtra(ClassGradesActivity.SELECTED_TASK_ID, 0);
+        for(int i = 0; i < course.tasks.get(task).gradeCategories.size(); i++)
         {
             if(i == getIntent().getIntExtra(ClassGradesActivity.SELECTED_CATEGORY_ID, 0))
             {
-                for (int j = 0; j < course.gradeCategories.get(i).activities.size(); j++)
+                for (int j = 0; j < course.tasks.get(task).gradeCategories.get(i).activities.size(); j++)
                 {
                     if (j == getIntent().getIntExtra(ClassGradesActivity.SELECTED_ASSIGNMENT_ID, 0))
                     {
-                        assignment = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0)).gradeCategories.get(i).activities.get(j);
+                        assignment = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0)).tasks.get(task).gradeCategories.get(i).activities.get(j);
                     }
                 }
             }

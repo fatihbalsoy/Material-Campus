@@ -41,7 +41,7 @@ public class ClassesActivity extends ActionBarActivity
         for (int i=0;i < InfiniteCampusApi.userInfo.courses.size(); ++i)
         {
             Course course = InfiniteCampusApi.userInfo.courses.get(i);
-            String[] newArray = {course.getCourseName(), new DecimalFormat("#.00").format(course.getPercent()) + "%", course.getTeacherName(), Character.toString(course.letterGrade)};
+            String[] newArray = {course.getCourseName(), new DecimalFormat("#.00").format(course.getPercent()) + "%", course.getTeacherName(), course.letterGrade };
             classNameArray.add(newArray);
         }
 

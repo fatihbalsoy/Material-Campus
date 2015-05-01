@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -12,6 +13,7 @@ import nu.xom.Elements;
 import nu.xom.Node;
 import us.plxhack.InfiniteCampus.api.course.Activity;
 import us.plxhack.InfiniteCampus.api.course.Category;
+import us.plxhack.InfiniteCampus.api.course.Task;
 import us.plxhack.InfiniteCampus.api.district.DistrictInfo;
 import us.plxhack.InfiniteCampus.api.course.Course;
 
@@ -102,7 +104,23 @@ public class InfiniteCampusApi
                     Element studentList = portalClassbook.getFirstChildElement("ClassbookDetail").getFirstChildElement("StudentList");
 
                     if (studentList.getChildCount() != 0)
-                        courseElements.add( portalClassbook.getFirstChildElement("ClassbookDetail").getFirstChildElement("StudentList").getChildElements().get(0).getFirstChildElement("Classbook") );
+                    {
+                        Element ce = studentList.getChildElements().get(0).getFirstChildElement("Classbook");
+
+                        Element terms = portalClassbook.getFirstChildElement("Calendar").getFirstChildElement("scheduleStructures").getFirstChildElement("ScheduleStructure").getFirstChildElement("termSchedules").getFirstChildElement("TermSchedule").getFirstChildElement("terms");
+
+                        for (int k=0;k < terms.getChildElements().size();++k)
+                        {
+                            Element term = terms.getChildElements().get(k);
+
+                            if (term.getAttribute("current") != null && term.getAttributeValue("current").equalsIgnoreCase("true"))
+                            {
+                                ce.addAttribute(new Attribute("current_term", term.getAttributeValue("name")));
+                            }
+                        }
+
+                        courseElements.add( ce );
+                    }
                 }
             }
         }
@@ -115,44 +133,42 @@ public class InfiniteCampusApi
 
             Course c = new Course( Integer.valueOf( e.getAttributeValue("courseNumber") ), e.getAttributeValue("courseName"), e.getAttributeValue("teacherDisplay") );
 
-            Elements tasks = e.getFirstChildElement("tasks").getChildElements();
-            Element finalTask = null;
-            List<Element> mainTasks = new ArrayList<>();
+            Elements taskChildren = e.getFirstChildElement("tasks").getChildElements();
+            ArrayList<Element> tasks = new ArrayList<>();
 
-            for (int j=0;j < tasks.size();++j)
+            for (int j=0;j < taskChildren.size();++j)
             {
-                finalTask = tasks.get(j);
-                if (tasks.get(j).getChildCount() != 0)
+                if (taskChildren.get(j).getAttributeValue("name").equalsIgnoreCase("final"))
                 {
-                    if(finalTask.getAttributeValue("name").equals("Sem 2"))
-                    {
-                        mainTasks.add(finalTask);
-                    }
-                    else if(finalTask.getAttributeValue("name").equals("Exam"))
-                    {
-                        mainTasks.add(finalTask);
-                    }
+                    c.percentage = Float.valueOf( taskChildren.get(j).getAttributeValue("percentage") );
+                    c.letterGrade = taskChildren.get(j).getAttributeValue("letterGrade");
                 }
-                if(finalTask.getAttributeValue("name").equals("Final"))
+                else if (taskChildren.get(j).getChildCount() != 0 && taskChildren.get(j).getAttributeValue("termName").equalsIgnoreCase( e.getAttributeValue("current_term") ))
                 {
-                    c.percentage = Float.valueOf(finalTask.getAttributeValue("percentage"));
-                    c.letterGrade = finalTask.getAttributeValue("letterGrade").charAt(0);
+                    Element t = taskChildren.get(j);
+                    tasks.add( t );
                 }
             }
 
-            for(int q = 0; q < mainTasks.size(); q++)
+            for (int l=0;l < tasks.size();++l)
             {
-                Element finalTaskGroups = mainTasks.get(q).getFirstChildElement("groups");
+                Element finalTaskGroups = tasks.get(l).getFirstChildElement("groups");
 
-                for (int j=0;j < finalTaskGroups.getChildCount();++j)
+                Task t = new Task( tasks.get(l).getAttributeValue("name") );
+                t.termName = tasks.get(l).getAttributeValue("termName");
+                t.weight = Float.valueOf( tasks.get(l).getAttributeValue("weight") );
+                t.percentage = Float.valueOf( tasks.get(l).getAttributeValue("percentage") );
+                t.letterGrade = tasks.get(l).getAttributeValue("letterGrade");
+
+                for (int j = 0; j < finalTaskGroups.getChildCount(); ++j)
                 {
                     Element groupElement = finalTaskGroups.getChildElements().get(j);
 
-                    Category category = new Category( groupElement.getAttributeValue("name") );
-                    category.percentage = Float.valueOf( groupElement.getAttributeValue("percentage") );
-                    category.earnedPoints = Float.valueOf( groupElement.getAttributeValue("pointsEarned") );
-                    category.totalPoints = Float.valueOf( groupElement.getAttributeValue("totalPointsPossible") );
-                    category.weight = Float.valueOf( groupElement.getAttributeValue("weight") );
+                    Category category = new Category(groupElement.getAttributeValue("name"));
+                    category.percentage = Float.valueOf(groupElement.getAttributeValue("percentage"));
+                    category.earnedPoints = Float.valueOf(groupElement.getAttributeValue("pointsEarned"));
+                    category.totalPoints = Float.valueOf(groupElement.getAttributeValue("totalPointsPossible"));
+                    category.weight = Float.valueOf(groupElement.getAttributeValue("weight"));
                     String gradeLetter = groupElement.getAttributeValue("letterGrade");
                     if (gradeLetter != null)
                         category.letterGrade = gradeLetter;
@@ -161,14 +177,13 @@ public class InfiniteCampusApi
 
                     Element activities = groupElement.getFirstChildElement("activities");
 
-                    for (int k=0;k < activities.getChildCount();++k)
-                    {
+                    for (int k = 0; k < activities.getChildCount(); ++k) {
                         Element activityElement = activities.getChildElements().get(k);
 
-                        Activity a = new Activity( activityElement.getAttributeValue("name") );
-                        a.percentage = Float.valueOf( activityElement.getAttributeValue("percentage") );
+                        Activity a = new Activity(activityElement.getAttributeValue("name"));
+                        a.percentage = Float.valueOf(activityElement.getAttributeValue("percentage"));
                         a.earnedPoints = activityElement.getAttributeValue("score");
-                        a.totalPoints = Float.valueOf( activityElement.getAttributeValue("weightedTotalPoints") );
+                        a.totalPoints = Float.valueOf(activityElement.getAttributeValue("weightedTotalPoints"));
                         a.dueDate = activityElement.getAttributeValue("dueDate");
                         a.missing = Boolean.valueOf(activityElement.getAttributeValue("missing"));
 
@@ -178,16 +193,18 @@ public class InfiniteCampusApi
                         else
                             a.letterGrade = "N/A";
 
-                        category.activities.add( a );
+                        category.activities.add(a);
                     }
 
                     category.sort();
 
-                    c.gradeCategories.add( category );
+                    t.addCategory(category);
                 }
+
+                c.tasks.add( t );
             }
 
-            courses.add(c);
+            courses.add( c );
         }
 
         userInfo.courses = new ArrayList<Course>( );

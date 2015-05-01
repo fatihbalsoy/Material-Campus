@@ -9,9 +9,10 @@ public class Course
     private Teacher teacher;
 
     public float percentage;
-    public char letterGrade;
+    public String letterGrade;
 
-    public ArrayList<Category> gradeCategories;
+    //public ArrayList<Category> gradeCategories;
+    public ArrayList<Task> tasks;
 
     private static String formatCourseName( String className )
     {
@@ -42,7 +43,7 @@ public class Course
         this.courseName = formatCourseName( courseName );
 
         teacher = new Teacher( commaSeparatedTeacherName );
-        gradeCategories = new ArrayList<Category>();
+        tasks = new ArrayList<Task>();
     }
 
     public int getCourseNumber()
@@ -68,24 +69,5 @@ public class Course
     public String getTeacherName()
     {
         return teacher.getFirstName() + " " + teacher.getLastName();
-    }
-
-    public void printDebugInfo()
-    {
-        System.out.println( courseNumber + "_" + courseName + "_" + getTeacherName() + "_" + percentage + "_" + letterGrade );
-
-        for (int i=0;i < gradeCategories.size();++i)
-        {
-            Category c = gradeCategories.get(i);
-
-            System.out.println( c.name + "_" + c.percentage + "_" + c.earnedPoints + "/" + c.totalPoints + "_" + c.weight + "_" + c.letterGrade );
-
-            for (int j=0;j < c.activities.size();++j)
-            {
-                Activity a = c.activities.get(j);
-
-                System.out.println( a.name + "_" + a.percentage + "_" + a.earnedPoints + "/" + a.totalPoints + "_" + a.dueDate + "_" + a.letterGrade );
-            }
-        }
     }
 }

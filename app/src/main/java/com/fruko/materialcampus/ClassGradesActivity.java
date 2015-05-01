@@ -35,6 +35,7 @@ public class ClassGradesActivity extends ActionBarActivity
     public final static String SELECTED_COURSE_ID = "com.fruko.materialcampus.SELECTED_COURSE_ID";
     public final static String SELECTED_ASSIGNMENT_ID = "com.fruko.materialcampus.SELECTED_ASSIGNMENT_ID";
     public final static String SELECTED_CATEGORY_ID = "com.fruko.materialcampus.SELECTED_CATEGORY_ID";
+    public final static String SELECTED_TASK_ID = "com.fruko.materialcampus.SELECTED_TASK_ID";
 
     private Course course;
 
@@ -49,32 +50,34 @@ public class ClassGradesActivity extends ActionBarActivity
 
         final List<List<String[]>> gradesArray = new ArrayList<>();
 
-        for (int i = 0; i < course.gradeCategories.size(); i++)
+        for (int i = 0; i < course.tasks.size(); i++)
         {
-            Category c = course.gradeCategories.get(i);
-
-            String[] title = { c.name, "" };
-            List<String[]> category = new ArrayList<>();
-            category.add(title);
-
-            for (int j = 0; j < c.activities.size(); j++)
+            for (int k = 0; k < course.tasks.get(i).gradeCategories.size();++k)
             {
-                us.plxhack.InfiniteCampus.api.course.Activity a = c.activities.get(j);
+                Category c = course.tasks.get(i).gradeCategories.get(k);
 
-                String percent = "";
-                if (a.missing)
-                    percent = "Missing";
-                else if(a.letterGrade.equals("N/A"))
-                    percent = "Not Graded";
-                else if(a.percentage == 0)
-                    percent = "0.00%";
-                else
-                    percent = new DecimalFormat("#.00").format(a.percentage) + "%";
+                String[] title = {c.name, ""};
+                List<String[]> category = new ArrayList<>();
+                category.add(title);
 
-                String[] assignment = { a.name, percent, a.letterGrade };
-                category.add(assignment);
+                for (int j = 0; j < c.activities.size(); j++) {
+                    us.plxhack.InfiniteCampus.api.course.Activity a = c.activities.get(j);
+
+                    String percent = "";
+                    if (a.missing)
+                        percent = "Missing";
+                    else if (a.letterGrade.equals("N/A"))
+                        percent = "Not Graded";
+                    else if (a.percentage == 0)
+                        percent = "0.00%";
+                    else
+                        percent = new DecimalFormat("#.00").format(a.percentage) + "%";
+
+                    String[] assignment = {a.name, percent, a.letterGrade};
+                    category.add(assignment);
+                }
+                gradesArray.add(category);
             }
-            gradesArray.add(category);
         }
 
         gradesList = (ListView)findViewById( R.id.class_grades );
@@ -158,6 +161,7 @@ public class ClassGradesActivity extends ActionBarActivity
                             intent.putExtra(SELECTED_COURSE_ID, getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
                             intent.putExtra(SELECTED_CATEGORY_ID, position);
                             intent.putExtra(SELECTED_ASSIGNMENT_ID, a);
+                            intent.putExtra(SELECTED_TASK_ID, 0);
                             startActivity(intent);
                         }
                     });
