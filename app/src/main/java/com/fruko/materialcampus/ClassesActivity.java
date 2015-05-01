@@ -204,6 +204,7 @@ public class ClassesActivity extends ActionBarActivity
         if (id == R.id.accounts)
         {
             Intent go = new Intent(this, AccountListActivity.class);
+            go.putExtra( AccountListActivity.NO_AUTO_LOGIN, true );
             this.startActivity(go);
             return true;
         }

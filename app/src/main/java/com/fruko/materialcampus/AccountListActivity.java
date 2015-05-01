@@ -28,6 +28,8 @@ import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 
 public class AccountListActivity extends ActionBarActivity
 {
+    public final static String NO_AUTO_LOGIN = "com.fruko.materialcampus.NO_AUTO_LOGIN";
+
     private UserLoginTask loginTask;
 
     private ListView accountsList;
@@ -115,7 +117,7 @@ public class AccountListActivity extends ActionBarActivity
         {
             setupAccountsList();
 
-            if (accounts.getNumAccounts() == 1)
+            if (accounts.getNumAccounts() == 1 && !getIntent().getBooleanExtra(NO_AUTO_LOGIN, false))
                 login( accounts.getFirstAccount() );
             else
                 baseView.setVisibility( View.VISIBLE );
