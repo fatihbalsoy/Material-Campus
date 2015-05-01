@@ -2,9 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/recent"
+          android:title="Recently Added"
+          app:showAsAction="never" />
     <item android:id="@+id/accounts"
-        android:title="Manage Accounts"
-        app:showAsAction="never" />
+          android:title="Manage Accounts"
+          app:showAsAction="never" />
     <item android:id="@+id/settings"
         android:title="Settings"
         app:showAsAction="never" />

@@ -1,8 +1,10 @@
 package us.plxhack.InfiniteCampus.api;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import us.plxhack.InfiniteCampus.api.calendar.Calendar;
+import us.plxhack.InfiniteCampus.api.course.Activity;
 import us.plxhack.InfiniteCampus.api.course.Course;
 import us.plxhack.InfiniteCampus.api.district.DistrictInfo;
 import nu.xom.*;
@@ -19,6 +21,7 @@ public class Student
 	
 	public ArrayList<Calendar> calendars = new ArrayList<Calendar>();
 	public ArrayList<Course> courses = new ArrayList<Course>();
+	public List<Activity> newAssignments = new ArrayList<>();
 	
 	private DistrictInfo distInfo;
 	

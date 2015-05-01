@@ -9,8 +9,9 @@ public class Activity
     public String earnedPoints;
     public String letterGrade;
     public boolean missing;
-
     public String dueDate;
+    public String id;
+    public String className;
 
     public Activity( String name )
     {

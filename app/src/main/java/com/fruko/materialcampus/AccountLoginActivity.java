@@ -1,6 +1,7 @@
 package com.fruko.materialcampus;
 
 import android.os.Bundle;
+import android.view.WindowManager;
 
 public class AccountLoginActivity extends LoginActivity
 {
@@ -8,6 +9,7 @@ public class AccountLoginActivity extends LoginActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     @Override

@@ -4,6 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -13,6 +17,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -22,8 +27,10 @@ import android.widget.ProgressBar;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import nu.xom.ParsingException;
 import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 
 public class AccountListActivity extends ActionBarActivity
@@ -94,6 +101,7 @@ public class AccountListActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accountslist);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         baseView = (LinearLayout)findViewById( R.id.accountslist_base );
 
@@ -226,9 +234,11 @@ public class AccountListActivity extends ActionBarActivity
             Boolean result = false;
             try
             {
-                result = InfiniteCampusApi.login(mDistrict, mUser, mPassword);
-            }
-            catch (Exception e)
+                result = InfiniteCampusApi.login(mDistrict, mUser, mPassword, getApplicationContext());
+            } catch (ParsingException e)
+            {
+                e.printStackTrace();
+            } catch (IOException e)
             {
                 e.printStackTrace();
             }
@@ -252,7 +262,7 @@ public class AccountListActivity extends ActionBarActivity
                     changeActivityWhenVisible = true;
             }
             else
-                baseView.setVisibility( View.VISIBLE );
+                baseView.setVisibility(View.VISIBLE);
         }
 
     }
@@ -265,4 +275,5 @@ public class AccountListActivity extends ActionBarActivity
         if (loginTask != null)
             loginTask.cancel(true);
     }
+
 }
