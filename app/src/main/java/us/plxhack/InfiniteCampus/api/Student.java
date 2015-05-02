@@ -19,8 +19,8 @@ public class Student
 	public String middleName;
 	public String isGuardian;
 	
-	public ArrayList<Calendar> calendars = new ArrayList<Calendar>();
-	public ArrayList<Course> courses = new ArrayList<Course>();
+	public List<Calendar> calendars = new ArrayList<Calendar>();
+	public List<Course> courses = new ArrayList<Course>();
 	public List<Activity> newAssignments = new ArrayList<>();
 	
 	private DistrictInfo distInfo;
@@ -43,7 +43,12 @@ public class Student
 		for(int i = 0; i < userElement.getChildElements("Calendar").size(); i++)
 			calendars.add(new Calendar(userElement.getChildElements("Calendar").get(i)));
 	}
-	
+
+	public Student(String name)
+	{
+		this.firstName = name;
+	}
+
 	public String getPictureURL()
 	{
 		return distInfo.getDistrictBaseURL() + "personPicture.jsp?personID=" + personID;

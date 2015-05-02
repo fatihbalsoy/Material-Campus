@@ -1,6 +1,7 @@
 package us.plxhack.InfiniteCampus.api.course;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Course
 {
@@ -12,7 +13,7 @@ public class Course
     public String letterGrade;
 
     //public ArrayList<Category> gradeCategories;
-    public ArrayList<Task> tasks;
+    public List<Task> tasks;
 
     private static String formatCourseName( String className )
     {
@@ -65,6 +66,8 @@ public class Course
     {
         return teacher;
     }
+
+    public String getLetterGrade() { return letterGrade; }
 
     public String getTeacherName()
     {

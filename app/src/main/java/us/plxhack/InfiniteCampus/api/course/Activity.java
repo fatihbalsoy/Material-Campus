@@ -6,7 +6,7 @@ public class Activity
 
     public float percentage;
     public float totalPoints;
-    public String earnedPoints;
+    public String earnedPoints = "";
     public String letterGrade;
     public boolean missing;
     public String dueDate;

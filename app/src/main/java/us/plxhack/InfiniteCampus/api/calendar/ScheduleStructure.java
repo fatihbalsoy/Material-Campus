@@ -42,6 +42,11 @@ public class ScheduleStructure
 			startDate = new Date();
 		}
 	}
+
+	public ScheduleStructure(String name)
+	{
+		this.name = name;
+	}
 	
 	public String getInfoString()
 	{

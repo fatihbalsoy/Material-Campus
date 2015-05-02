@@ -1,6 +1,12 @@
 package us.plxhack.InfiniteCampus.api;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,8 +16,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.Buffer;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -20,6 +30,8 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
 import nu.xom.ParsingException;
+import us.plxhack.InfiniteCampus.api.calendar.Calendar;
+import us.plxhack.InfiniteCampus.api.calendar.ScheduleStructure;
 import us.plxhack.InfiniteCampus.api.course.Activity;
 import us.plxhack.InfiniteCampus.api.course.Category;
 import us.plxhack.InfiniteCampus.api.course.Task;
@@ -53,29 +65,149 @@ public class InfiniteCampusApi
 	{
 		return districtInfo.getDistrictBaseURL() + document;
 	}
-	
-	public static boolean isLoggedIn( )
-	{
-		return isLoggedIn;
-	}
-	
-	public static boolean login( String districtCode, String username, String password, Context con ) throws ParsingException, IOException
-    {
-        context = con;
-		//Get District Information from district code
-		CoreManager core = new CoreManager(districtCode);
-		districtInfo = core.getDistrictInfo();
 
-        File file = new File(context.getFilesDir(), "existinggrades.data");
-        if(!file.exists())
+    public static void loadData(File existing, File saveFile) throws JSONException, IOException
+    {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = new BufferedReader(new FileReader(saveFile));
+        String line = "";
+        while((line = br.readLine()) != null)
         {
-            file.createNewFile();
+            sb.append(line);
         }
+
+        JSONObject json = new JSONObject(sb.toString());
+
+        userInfo = new Student(json.getString("firstName"));
+        userInfo.middleName = json.getString("middleName");
+        userInfo.lastName = json.getString("lastName");
+        userInfo.personID = json.getString("id");
+        userInfo.studentNumber = json.getString("number");
+        userInfo.hasSecurityRole = json.getBoolean("security");
+        userInfo.isGuardian = json.getString("guardian");
+
+        JSONArray jsonCourses = json.getJSONArray("courses");
+        List<Course> courses = new ArrayList<>();
+        for(int i = 0; i < jsonCourses.length(); i++)
+        {
+            JSONObject jsonCourse = jsonCourses.getJSONObject(i);
+            Course course = new Course(jsonCourse.getInt("number"), jsonCourse.getString("name"), jsonCourse.getString("teacher"));
+
+            course.percentage = (float)jsonCourse.getDouble("percent");
+            course.letterGrade = jsonCourse.getString("letterGrade");
+
+            JSONArray jsonTasks = jsonCourse.getJSONArray("tasks");
+            List<Task> tasks = new ArrayList<>();
+            for(int j = 0; j < jsonTasks.length(); j++)
+            {
+                JSONObject jsonTask = jsonTasks.getJSONObject(j);
+                Task task = new Task(jsonTask.getString("name"));
+
+                task.termName = jsonTask.getString("termName");
+                task.percentage = (float)jsonTask.getDouble("percent");
+                task.earnedPoints = jsonTask.getInt("earnedPoints");
+                task.totalPoints = jsonTask.getInt("totalPoints");
+                task.weight = jsonTask.getInt("weight");
+                task.letterGrade = jsonTask.getString("letterGrade");
+
+                JSONArray jsonCategories = jsonTask.getJSONArray("categories");
+                List<Category> categories = new ArrayList<>();
+                for(int k = 0; k < jsonCategories.length(); k++)
+                {
+                    JSONObject jsonCategory = jsonCategories.getJSONObject(k);
+                    Category category = new Category(jsonCategory.getString("name"));
+
+                    category.percentage = (float)jsonCategory.getDouble("percent");
+                    category.earnedPoints = jsonCategory.getInt("earnedPoints");
+                    category.totalPoints = jsonCategory.getInt("totalPoints");
+                    category.weight = jsonCategory.getInt("weight");
+                    category.letterGrade = jsonCategory.getString("letterGrade");
+
+                    JSONArray jsonActivities = jsonCategory.getJSONArray("activities");
+                    List<Activity> activities = new ArrayList<>();
+                    for(int l = 0; l < jsonActivities.length(); l++)
+                    {
+                        JSONObject jsonActivity = jsonActivities.getJSONObject(l);
+                        Activity activity = new Activity(jsonActivity.getString("name"));
+
+                        activity.percentage = (float)jsonActivity.getDouble("percent");
+                        activity.earnedPoints = jsonActivity.getString("earnedPoints");
+                        activity.totalPoints = jsonActivity.getInt("totalPoints");
+                        activity.letterGrade = jsonActivity.getString("letterGrade");
+                        activity.id = jsonActivity.getString("id");
+                        activity.missing = jsonActivity.getBoolean("missing");
+                        activity.dueDate = jsonActivity.getString("dueDate");
+                        activity.className = jsonActivity.getString("className");
+
+                        activities.add(activity);
+                    }
+                    category.activities = activities;
+
+                    categories.add(category);
+                }
+                task.gradeCategories = categories;
+
+                tasks.add(task);
+            }
+            course.tasks = tasks;
+
+            courses.add(course);
+        }
+        userInfo.courses = courses;
+
+        JSONArray jsonCalendars = json.getJSONArray("calendars");
+        List<Calendar> calendars = new ArrayList<>();
+        for(int i = 0; i < jsonCalendars.length(); i++)
+        {
+            JSONObject jsonCalendar = jsonCalendars.getJSONObject(i);
+            Calendar calendar = new Calendar(jsonCalendar.getString("name"));
+
+            calendar.calendarID = jsonCalendar.getString("id");
+            calendar.endYear = jsonCalendar.getString("endYear");
+            calendar.schoolID = jsonCalendar.getString("schoolId");
+
+            JSONArray jsonSchedules = jsonCalendar.getJSONArray("schedules");
+            List<ScheduleStructure> schedules = new ArrayList<>();
+            for(int j = 0; j < jsonSchedules.length(); j++)
+            {
+                JSONObject jsonSchedule = jsonSchedules.getJSONObject(j);
+                ScheduleStructure schedule = new ScheduleStructure(jsonSchedule.getString("name"));
+
+                schedule.active = jsonSchedule.getBoolean("active");
+                schedule.grade = jsonSchedule.getString("grade");
+                schedule.id = jsonSchedule.getString("id");
+                schedule.is_default = jsonSchedule.getBoolean("default");
+                schedule.label = jsonSchedule.getString("label");
+                schedule.primary = jsonSchedule.getString("primary");
+                try
+                {
+                    schedule.startDate = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH).parse(jsonSchedule.getString("startDate"));
+                } catch (ParseException e)
+                {
+                    e.printStackTrace();
+                }
+
+                schedules.add(schedule);
+            }
+            calendar.schedules = schedules;
+
+            calendars.add(calendar);
+        }
+        userInfo.calendars = calendars;
+
+
+    }
+
+    public static boolean loadRemoteData(String districtCode, String username, String password, File existing, File saveFile) throws IOException, ParsingException
+    {
+        //Get District Information from district code
+        CoreManager core = new CoreManager(districtCode);
+        districtInfo = core.getDistrictInfo();
 
         List<Activity> newAssignments = new ArrayList<>();
         List<String> existingAssignments = new ArrayList<>();
 
-        BufferedReader br = new BufferedReader(new FileReader(file));
+        BufferedReader br = new BufferedReader(new FileReader(existing));
         String line = "";
         while((line = br.readLine()) != null)
         {
@@ -83,8 +215,8 @@ public class InfiniteCampusApi
             System.out.println(line.split("-")[0] + " already exists");
         }
 
-		//Try to log in with given district info, username, and pass
-		if (!core.attemptLogin(username, password, core.getDistrictInfo()))
+        //Try to log in with given district info, username, and pass
+        if (!core.attemptLogin(username, password, core.getDistrictInfo()))
         {
             System.out.println("Login Failed!");
             return false;
@@ -274,7 +406,7 @@ public class InfiniteCampusApi
         }
 
         //save grades to be compared when looking for new grades
-        BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+        BufferedWriter bw = new BufferedWriter(new FileWriter(existing));
         bw.write(sb.toString());
         bw.close();
 
@@ -307,12 +439,216 @@ public class InfiniteCampusApi
                     userInfo.courses.add( courses.get(i) );
             }
         }
-		
-		isLoggedIn = true;
+
+        try
+        {
+            saveData(saveFile);
+        } catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        isLoggedIn = true;
         _districtCode = districtCode;
         _username = username;
         _password = password;
         System.out.println("Logged in and got data!");
+        return true;
+    }
+
+    public static void saveData(File saveFile) throws JSONException, IOException
+    {
+        JSONObject json = new JSONObject();
+
+        json.put("firstName", userInfo.firstName);
+        json.put("middleName", userInfo.middleName);
+        json.put("lastName", userInfo.lastName);
+        json.put("id", userInfo.personID);
+        json.put("number", userInfo.studentNumber);
+        json.put("security", userInfo.hasSecurityRole);
+        json.put("guardian", userInfo.isGuardian);
+
+        JSONArray jsonCourses = new JSONArray();
+        List<Course> courses = userInfo.courses;
+        for(int i = 0; i < courses.size(); i++)
+        {
+            JSONObject jsonCourse = new JSONObject();
+            Course course = courses.get(i);
+
+            jsonCourse.put("name", course.getCourseName());
+            jsonCourse.put("teacher", course.getTeacherName());
+            jsonCourse.put("percent", course.getPercent());
+            jsonCourse.put("letterGrade", course.getLetterGrade());
+            jsonCourse.put("number", course.getCourseNumber());
+
+            JSONArray jsonTasks = new JSONArray();
+            List<Task> tasks = course.tasks;
+            for(int j = 0; j < tasks.size(); j++)
+            {
+                JSONObject jsonTask = new JSONObject();
+                Task task = tasks.get(j);
+
+                jsonTask.put("name", task.name);
+                jsonTask.put("termName", task.termName);
+                jsonTask.put("percent", task.percentage);
+                jsonTask.put("earnedPoints", task.earnedPoints);
+                jsonTask.put("totalPoints", task.totalPoints);
+                jsonTask.put("weight", task.weight);
+                jsonTask.put("letterGrade", task.letterGrade);
+
+                JSONArray jsonCategories = new JSONArray();
+                List<Category> categories = task.gradeCategories;
+                for(int k = 0; k < categories.size(); k++)
+                {
+                    JSONObject jsonCategory = new JSONObject();
+                    Category category = categories.get(k);
+
+                    jsonCategory.put("name", category.name);
+                    jsonCategory.put("percent", category.percentage);
+                    jsonCategory.put("earnedPoints", category.earnedPoints);
+                    jsonCategory.put("totalPoints", category.totalPoints);
+                    jsonCategory.put("weight", category.weight);
+                    jsonCategory.put("letterGrade", category.letterGrade);
+
+                    JSONArray jsonActivities = new JSONArray();
+                    List<Activity> activities = category.activities;
+                    for(int l = 0; l < activities.size(); l++)
+                    {
+                        JSONObject jsonActivity = new JSONObject();
+                        Activity activity = activities.get(l);
+
+                        jsonActivity.put("name", activity.name);
+                        jsonActivity.put("percent", activity.percentage);
+                        if(activity.earnedPoints == null)
+                        {
+                            jsonActivity.put("earnedPoints", "");
+                        }
+                        else
+                        {
+                            jsonActivity.put("earnedPoints", activity.earnedPoints);
+                        }
+                        jsonActivity.put("totalPoints", activity.totalPoints);
+                        jsonActivity.put("id", activity.id);
+                        jsonActivity.put("letterGrade", activity.letterGrade);
+                        jsonActivity.put("missing", activity.missing);
+                        jsonActivity.put("dueDate", activity.dueDate);
+                        jsonActivity.put("className", activity.className);
+
+                        jsonActivities.put(jsonActivity);
+                    }
+                    jsonCategory.put("activities", jsonActivities);
+
+                    jsonCategories.put(jsonCategory);
+                }
+                jsonTask.put("categories", jsonCategories);
+
+                jsonTasks.put(jsonTask);
+            }
+            jsonCourse.put("tasks", jsonTasks);
+
+            jsonCourses.put(jsonCourse);
+        }
+        json.put("courses", jsonCourses);
+
+        JSONArray jsonCalendars = new JSONArray();
+        List<Calendar> calendars = userInfo.calendars;
+        for(int i = 0; i < calendars.size(); i++)
+        {
+            JSONObject jsonCalendar = new JSONObject();
+            Calendar calendar = calendars.get(i);
+
+            jsonCalendar.put("id", calendar.calendarID);
+            jsonCalendar.put("endYear", calendar.endYear);
+            jsonCalendar.put("name", calendar.name);
+            jsonCalendar.put("schoolId", calendar.schoolID);
+
+            JSONArray jsonSchedules = new JSONArray();
+            List<ScheduleStructure> schedules = calendar.schedules;
+            for(int j = 0; j < schedules.size(); j++)
+            {
+                JSONObject jsonSchedule = new JSONObject();
+                ScheduleStructure schedule = schedules.get(j);
+
+                jsonSchedule.put("active", schedule.active);
+                jsonSchedule.put("grade", schedule.grade);
+                jsonSchedule.put("id", schedule.id);
+                jsonSchedule.put("default", schedule.is_default);
+                jsonSchedule.put("label", schedule.label);
+                jsonSchedule.put("name", schedule.name);
+                jsonSchedule.put("primary", schedule.primary);
+                jsonSchedule.put("startDate", schedule.startDate);
+
+                jsonSchedules.put(jsonSchedule);
+            }
+            jsonCalendar.put("schedules", jsonSchedules);
+
+            jsonCalendars.put(jsonCalendar);
+        }
+
+        json.put("calendars", jsonCalendars);
+
+        System.out.println("JSON created... writing to file");
+        String jsonString = json.toString();
+        BufferedWriter bw = new BufferedWriter(new FileWriter(saveFile));
+        bw.write(jsonString);
+        bw.close();
+    }
+
+	public static boolean isLoggedIn( )
+	{
+		return isLoggedIn;
+	}
+	
+	public static boolean login( String districtCode, String username, String password, Context con ) throws ParsingException, IOException
+    {
+        context = con;
+
+        boolean online;
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if (ni == null)
+        {
+            online = false;
+        }
+        else
+        {
+            online = ni.isConnected();
+        }
+
+        File existing = new File(context.getFilesDir(), "existinggrades.data");
+        File saveFile = new File(context.getFilesDir(), "save.data");
+
+        if(online)
+        {
+            System.out.println("Loading data from internet");
+            if(!existing.exists())
+            {
+                existing.createNewFile();
+            }
+            if(!saveFile.exists())
+            {
+                existing.createNewFile();
+            }
+            return loadRemoteData(districtCode, username, password, existing, saveFile);
+        }
+        else if(saveFile.exists())
+        {
+            System.out.println("No internet connect but save file exists");
+            try
+            {
+                loadData(existing, saveFile);
+            } catch (JSONException e)
+            {
+                e.printStackTrace();
+                return false;
+            }
+            System.out.println("Finished loading data");
+        }
+        else
+        {
+            System.out.println("Please connect to the internet");
+            return false;
+        }
+
 		return true;
 	}
 

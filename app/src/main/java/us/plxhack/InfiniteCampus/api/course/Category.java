@@ -1,17 +1,18 @@
 package us.plxhack.InfiniteCampus.api.course;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Category
 {
     public String name;
 
     public float percentage;
-    public float earnedPoints, totalPoints;
+    public float earnedPoints, totalPoints = 0;
     public float weight;
     public String letterGrade;
 
-    public ArrayList<Activity> activities;
+    public List<Activity> activities;
 
     public Category( String name )
     {

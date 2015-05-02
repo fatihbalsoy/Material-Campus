@@ -1,6 +1,7 @@
 package us.plxhack.InfiniteCampus.api.calendar;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import nu.xom.Element;
 
@@ -11,7 +12,7 @@ public class Calendar
 	public String calendarID;
 	public String endYear;
 	
-	public ArrayList<ScheduleStructure> schedules = new ArrayList<ScheduleStructure>();
+	public List<ScheduleStructure> schedules = new ArrayList<ScheduleStructure>();
 	public Calendar(Element calendar)
 	{
 		name = calendar.getAttributeValue("calendarName");
@@ -21,6 +22,11 @@ public class Calendar
         System.out.println("Calendar info string: " + getInfoString());
 		for(int i = 0; i < calendar.getChildElements().size(); i++)
 			schedules.add(new ScheduleStructure(calendar.getChildElements().get(i)));
+	}
+
+	public Calendar(String name)
+	{
+		this.name = name;
 	}
 	
 	public String getInfoString()
