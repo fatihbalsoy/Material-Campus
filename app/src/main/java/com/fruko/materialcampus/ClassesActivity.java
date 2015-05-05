@@ -119,7 +119,6 @@ public class ClassesActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        InfiniteCampusApi.refresh();
         setContentView(R.layout.activity_classes);
 
         setTitle( InfiniteCampusApi.userInfo.firstName + ' ' + InfiniteCampusApi.userInfo.lastName );
