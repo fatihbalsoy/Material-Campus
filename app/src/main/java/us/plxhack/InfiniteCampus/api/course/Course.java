@@ -47,6 +47,15 @@ public class Course
         tasks = new ArrayList<Task>();
     }
 
+    public Course( int courseNumber, String courseName, Teacher teacher )
+    {
+        this.courseNumber = courseNumber;
+        this.courseName = formatCourseName( courseName );
+        this.teacher = teacher;
+
+        tasks = new ArrayList<Task>();
+    }
+
     public int getCourseNumber()
     {
         return courseNumber;

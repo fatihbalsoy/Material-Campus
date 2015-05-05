@@ -36,6 +36,7 @@ import us.plxhack.InfiniteCampus.api.calendar.ScheduleStructure;
 import us.plxhack.InfiniteCampus.api.course.Activity;
 import us.plxhack.InfiniteCampus.api.course.Category;
 import us.plxhack.InfiniteCampus.api.course.Task;
+import us.plxhack.InfiniteCampus.api.course.Teacher;
 import us.plxhack.InfiniteCampus.api.district.DistrictInfo;
 import us.plxhack.InfiniteCampus.api.course.Course;
 
@@ -69,9 +70,21 @@ public class InfiniteCampusApi
 
     public static void loadData(File existing, File saveFile) throws JSONException, IOException
     {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader br = new BufferedReader(new FileReader(saveFile));
+        List<Activity> newAssignments = new ArrayList<>();
+        List<String> existingAssignments = new ArrayList<>();
+
+        BufferedReader br = new BufferedReader(new FileReader(existing));
         String line = "";
+        while((line = br.readLine()) != null)
+        {
+            existingAssignments.add(line.split("-")[0]);
+            System.out.println(line.split("-")[0] + " already exists");
+        }
+        br.close();
+
+        StringBuilder sb = new StringBuilder();
+        br = new BufferedReader(new FileReader(saveFile));
+        line = "";
         while((line = br.readLine()) != null)
         {
             sb.append(line);
@@ -95,7 +108,9 @@ public class InfiniteCampusApi
         for(int i = 0; i < jsonCourses.length(); i++)
         {
             JSONObject jsonCourse = jsonCourses.getJSONObject(i);
-            Course course = new Course(jsonCourse.getInt("number"), jsonCourse.getString("name"), jsonCourse.getString("teacher"));
+            JSONObject jsonTeacher = jsonCourse.getJSONObject("teacher");
+            Teacher teacher = new Teacher(jsonTeacher.getString("firstName"), jsonTeacher.getString("lastName"));
+            Course course = new Course(jsonCourse.getInt("number"), jsonCourse.getString("name"), teacher);
 
             course.percentage = (float)jsonCourse.getDouble("percent");
             course.letterGrade = jsonCourse.getString("letterGrade");
@@ -134,7 +149,7 @@ public class InfiniteCampusApi
                         JSONObject jsonActivity = jsonActivities.getJSONObject(l);
                         Activity activity = new Activity(jsonActivity.getString("name"));
 
-                        activity.percentage = (float)jsonActivity.getDouble("percent");
+                        activity.percentage = (float) jsonActivity.getDouble("percent");
                         activity.earnedPoints = jsonActivity.getString("earnedPoints");
                         activity.totalPoints = jsonActivity.getInt("totalPoints");
                         activity.letterGrade = jsonActivity.getString("letterGrade");
@@ -142,6 +157,25 @@ public class InfiniteCampusApi
                         activity.missing = jsonActivity.getBoolean("missing");
                         activity.dueDate = jsonActivity.getString("dueDate");
                         activity.className = jsonActivity.getString("className");
+
+                        boolean found = false;
+                        for (int o = 0; o < existingAssignments.size(); o++)
+                        {
+                            if (existingAssignments.get(o).equals(activity.id))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!activity.letterGrade.equals("N/A") || activity.missing)
+                        {
+                            sb.append(activity.id + "-" + activity.earnedPoints + "\n");
+                            if (!found)
+                            {
+                                newAssignments.add(activity);
+                            }
+                        }
 
                         activities.add(activity);
                     }
@@ -158,6 +192,7 @@ public class InfiniteCampusApi
             courses.add(course);
         }
         userInfo.courses = courses;
+        userInfo.newAssignments = newAssignments;
 
         JSONArray jsonCalendars = json.getJSONArray("calendars");
         List<Calendar> calendars = new ArrayList<>();
@@ -482,7 +517,6 @@ public class InfiniteCampusApi
             Course course = courses.get(i);
 
             jsonCourse.put("name", course.getCourseName());
-            jsonCourse.put("teacher", course.getTeacherName());
             jsonCourse.put("percent", course.getPercent());
             jsonCourse.put("letterGrade", course.getLetterGrade());
             jsonCourse.put("number", course.getCourseNumber());
@@ -551,6 +585,12 @@ public class InfiniteCampusApi
                 jsonTasks.put(jsonTask);
             }
             jsonCourse.put("tasks", jsonTasks);
+
+            JSONObject jsonTeacher = new JSONObject();
+            Teacher teacher = course.getTeacher();
+            jsonTeacher.put("firstName", teacher.getFirstName());
+            jsonTeacher.put("lastName", teacher.getLastName());
+            jsonCourse.put("teacher", jsonTeacher);
 
             jsonCourses.put(jsonCourse);
         }
@@ -659,6 +699,23 @@ public class InfiniteCampusApi
 
 		return true;
 	}
+
+    public static void refresh()
+    {
+        File existing = new File(context.getFilesDir(), "existinggrades.data");
+        File saveFile = new File(context.getFilesDir(), "save.data");
+        try
+        {
+            loadData(existing, saveFile);
+        } catch (JSONException e)
+        {
+            e.printStackTrace();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        System.out.println("Finished loading data");
+    }
 
     public static boolean relogin()
     {

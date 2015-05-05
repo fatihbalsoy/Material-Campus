@@ -34,6 +34,7 @@ public class AssignmentActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        InfiniteCampusApi.refresh();
         setContentView(R.layout.activity_assignment);
         course = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0));
         int task = getIntent().getIntExtra(ClassGradesActivity.SELECTED_TASK_ID, 0);

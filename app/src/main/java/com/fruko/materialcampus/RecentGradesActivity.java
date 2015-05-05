@@ -35,6 +35,7 @@ public class RecentGradesActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        InfiniteCampusApi.refresh();
         setContentView(R.layout.activity_recentgrades);
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
