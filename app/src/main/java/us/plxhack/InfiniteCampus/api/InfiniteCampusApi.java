@@ -86,6 +86,9 @@ public class InfiniteCampusApi
         userInfo.studentNumber = json.getString("number");
         userInfo.hasSecurityRole = json.getBoolean("security");
         userInfo.isGuardian = json.getString("guardian");
+        _username = json.getString("username");
+        _password = json.getString("password");
+        _districtCode = json.getString("districtCode");
 
         JSONArray jsonCourses = json.getJSONArray("courses");
         List<Course> courses = new ArrayList<>();
@@ -441,6 +444,10 @@ public class InfiniteCampusApi
             }
         }
 
+        isLoggedIn = true;
+        _districtCode = districtCode;
+        _username = username;
+        _password = password;
         try
         {
             saveData(saveFile);
@@ -448,10 +455,6 @@ public class InfiniteCampusApi
         {
             e.printStackTrace();
         }
-        isLoggedIn = true;
-        _districtCode = districtCode;
-        _username = username;
-        _password = password;
         System.out.println("Logged in and got data!");
         return true;
     }
@@ -467,6 +470,9 @@ public class InfiniteCampusApi
         json.put("number", userInfo.studentNumber);
         json.put("security", userInfo.hasSecurityRole);
         json.put("guardian", userInfo.isGuardian);
+        json.put("password", _password);
+        json.put("username", _username);
+        json.put("districtCode", _districtCode);
 
         JSONArray jsonCourses = new JSONArray();
         List<Course> courses = userInfo.courses;
@@ -657,7 +663,7 @@ public class InfiniteCampusApi
     public static boolean relogin()
     {
         System.out.println("Relogging in");
-        if (!isLoggedIn)
+        if (_username == null || _password == null || _districtCode == null)
             return false;
 
         try
