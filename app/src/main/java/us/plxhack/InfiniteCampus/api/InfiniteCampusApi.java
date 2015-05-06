@@ -1,6 +1,7 @@
 package us.plxhack.InfiniteCampus.api;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -617,7 +618,8 @@ public class InfiniteCampusApi
         File existing = new File(context.getFilesDir(), "existinggrades.data");
         File saveFile = new File(context.getFilesDir(), "save.data");
 
-        if(online)
+        SharedPreferences settings = context.getSharedPreferences("MaterialCampus", 0);
+        if(online && !settings.getBoolean("dontSync", false))
         {
             System.out.println("Loading data from internet");
             if(!existing.exists())

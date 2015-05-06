@@ -15,9 +15,6 @@ import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 
 /**
  * Created by mail929 on 3/22/15.
- * todo (make settings for)
- * color highlighting
- * ui color
  */
 public class SettingsActivity extends ActionBarActivity
 {
@@ -32,20 +29,36 @@ public class SettingsActivity extends ActionBarActivity
 
         LinearLayout scroll = (LinearLayout) findViewById(R.id.scroll);
 
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
         View gradeHighlight = getLayoutInflater().inflate(R.layout.checkbox_setting_item, null);
         TextView highlightLabel = (TextView) gradeHighlight.findViewById(R.id.label);
         final CheckBox highlightCheck = (CheckBox) gradeHighlight.findViewById(R.id.checkBox);
         highlightLabel.setText("Highlight Grades with Color?");
         highlightCheck.setChecked(settings.getBoolean("highlightGrade", false));
-        highlightCheck.setOnClickListener(new View.OnClickListener()
-        {
+        highlightCheck.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 editor.putBoolean("highlightGrade", highlightCheck.isChecked());
                 editor.commit();
             }
         });
         scroll.addView(gradeHighlight);
+
+        View dontSync = getLayoutInflater().inflate(R.layout.checkbox_setting_item, null);
+        TextView dontSyncLabel = (TextView) dontSync.findViewById(R.id.label);
+        final CheckBox dontSyncCheck = (CheckBox) dontSync.findViewById(R.id.checkBox);
+        dontSyncLabel.setText("Dont sync automatically?");
+        dontSyncCheck.setChecked(settings.getBoolean("dontSync", false));
+        dontSyncCheck.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                editor.putBoolean("dontSync", dontSyncCheck.isChecked());
+                editor.commit();
+            }
+        });
+        scroll.addView(dontSync);
     }
 }
