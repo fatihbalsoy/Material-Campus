@@ -599,7 +599,7 @@ public class InfiniteCampusApi
 		return isLoggedIn;
 	}
 	
-	public static boolean login( String districtCode, String username, String password, Context con ) throws ParsingException, IOException
+	public static boolean login( String districtCode, String username, String password, Context con , boolean ignoreDontSync) throws ParsingException, IOException
     {
         context = con;
 
@@ -619,7 +619,7 @@ public class InfiniteCampusApi
         File saveFile = new File(context.getFilesDir(), "save.data");
 
         SharedPreferences settings = context.getSharedPreferences("MaterialCampus", 0);
-        if(online && !settings.getBoolean("dontSync", false))
+        if(online && (!settings.getBoolean("dontSync", false) || ignoreDontSync))
         {
             System.out.println("Loading data from internet");
             if(!existing.exists())
@@ -656,12 +656,13 @@ public class InfiniteCampusApi
 
     public static boolean relogin()
     {
+        System.out.println("Relogging in");
         if (!isLoggedIn)
             return false;
 
         try
         {
-            return login(_districtCode, _username, _password, context);
+            return login(_districtCode, _username, _password, context, true);
         }
         catch (Exception e)
         {

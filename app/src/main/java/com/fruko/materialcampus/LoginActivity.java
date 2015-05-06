@@ -240,7 +240,7 @@ public class LoginActivity extends AccountAuthenticatorActivity
         {
             try
             {
-                return InfiniteCampusApi.login(mDistrict, mUser, mPassword, getApplicationContext());
+                return InfiniteCampusApi.login(mDistrict, mUser, mPassword, getApplicationContext(), false);
             }
             catch (Exception e)
             {
