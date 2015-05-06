@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +20,8 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -30,9 +34,30 @@ import us.plxhack.InfiniteCampus.api.course.Course;
 public class ClassesActivity extends ActionBarActivity
 {
     public final static String SELECTED_COURSE_ID = "com.fruko.materialcampus.SELECTED_COURSE_ID";
+    public final static String ALL_CLASSES_ID = "com.fruko.materialcampus.ALL_CLASSES_ID";
 
     private ListView classList;
     private boolean canViewGrades = true;
+
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_classes);
+
+        setTitle( InfiniteCampusApi.userInfo.firstName + ' ' + InfiniteCampusApi.userInfo.lastName );
+        getCourseList();
+
+        final SwipeRefreshLayout swipeView = (SwipeRefreshLayout)findViewById( R.id.class_swipe );
+        swipeView.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener()
+        {
+            @Override
+            public void onRefresh()
+            {
+                System.out.println("Refreshing");
+                new UserRefreshTask( swipeView ).execute();
+            }
+        });
+    }
 
     private void getCourseList()
     {
@@ -49,10 +74,13 @@ public class ClassesActivity extends ActionBarActivity
 
         classList = (ListView)findViewById( R.id.class_list );
 
-        classList.setAdapter(new ArrayAdapter<String[]>(this, R.layout.class_list_item, R.id.name, classNameArray) {
-            public View getView(final int position, View convertView, ViewGroup parent) {
+        classList.setAdapter(new ArrayAdapter<String[]>(this, R.layout.class_list_item, R.id.name, classNameArray)
+        {
+            public View getView(final int position, View convertView, ViewGroup parent)
+            {
                 View view;
-                if (convertView == null) {
+                if (convertView == null)
+                {
                     LayoutInflater infl = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                     convertView = infl.inflate(R.layout.class_list_item, parent, false);
                 }
@@ -70,7 +98,7 @@ public class ClassesActivity extends ActionBarActivity
 
                 SharedPreferences settings = getSharedPreferences("MaterialCampus", 0);
 
-                if(settings.getBoolean("highlightGrade", false))
+                if (settings.getBoolean("highlightGrade", false))
                 {
                     switch (grade.getText().toString())
                     {
@@ -114,26 +142,6 @@ public class ClassesActivity extends ActionBarActivity
         });
 
         canViewGrades = true;
-    }
-
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_classes);
-
-        setTitle( InfiniteCampusApi.userInfo.firstName + ' ' + InfiniteCampusApi.userInfo.lastName );
-        getCourseList();
-
-        final SwipeRefreshLayout swipeView = (SwipeRefreshLayout)findViewById( R.id.class_swipe );
-        swipeView.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener()
-        {
-            @Override
-            public void onRefresh()
-            {
-                System.out.println("Refreshing");
-                new UserRefreshTask( swipeView ).execute();
-            }
-        });
     }
 
     protected void onStart()
@@ -218,6 +226,14 @@ public class ClassesActivity extends ActionBarActivity
         else if (id == R.id.recent)
         {
             Intent go = new Intent(this, RecentGradesActivity.class);
+            this.startActivity(go);
+            return true;
+        }
+        else if (id == R.id.search)
+        {
+            Intent go = new Intent(this, SearchActivity.class);
+            go.putExtra(SELECTED_COURSE_ID, 0);
+            go.putExtra(ALL_CLASSES_ID, true);
             this.startActivity(go);
             return true;
         }

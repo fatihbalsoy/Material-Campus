@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.fruko.materialcampus.AssignmentActivity;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -732,6 +734,49 @@ public class InfiniteCampusApi
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static List<Activity> searchClass(Course course, String search)
+    {
+        List<Activity> assignments = new ArrayList<>();
+        for(int i = 0; i < course.tasks.size(); i++)
+        {
+            for(int j = 0; j < course.tasks.get(i).gradeCategories.size(); j++)
+            {
+                for(int k = 0; k < course.tasks.get(i).gradeCategories.get(j).activities.size(); k++)
+                {
+                    Activity activity = course.tasks.get(i).gradeCategories.get(j).activities.get(k);
+                    if(activity.name.contains(search))
+                    {
+                        assignments.add(activity);
+                    }
+                }
+            }
+        }
+        return assignments;
+    }
+
+    public static List<Activity> searchAllClasses(String search)
+    {
+        List<Activity> assignments = new ArrayList<>();
+        for(int l = 0; l < userInfo.courses.size(); l++)
+        {
+            for(int i = 0; i < userInfo.courses.get(l).tasks.size(); i++)
+            {
+                for(int j = 0; j < userInfo.courses.get(l).tasks.get(i).gradeCategories.size(); j++)
+                {
+                    for(int k = 0; k < userInfo.courses.get(l).tasks.get(i).gradeCategories.get(j).activities.size(); k++)
+                    {
+                        Activity activity = userInfo.courses.get(l).tasks.get(i).gradeCategories.get(j).activities.get(k);
+                        if(activity.name.contains(search))
+                        {
+                            assignments.add(activity);
+                        }
+                    }
+                }
+            }
+        }
+        return assignments;
     }
 
 	public static void printDebugInfo()

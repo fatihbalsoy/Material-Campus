@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -37,14 +40,17 @@ public class ClassGradesActivity extends ActionBarActivity
     public final static String SELECTED_ASSIGNMENT_ID = "com.fruko.materialcampus.SELECTED_ASSIGNMENT_ID";
     public final static String SELECTED_CATEGORY_ID = "com.fruko.materialcampus.SELECTED_CATEGORY_ID";
     public final static String SELECTED_TASK_ID = "com.fruko.materialcampus.SELECTED_TASK_ID";
+    public final static String ALL_CLASSES_ID = "com.fruko.materialcampus.ALL_CLASSES_ID";
 
     private Course course;
+    private int position;
 
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_classgrades);
         course = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
+        position = getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0);
         setTitle(course.getCourseName() + " - " + new DecimalFormat("#.00").format(course.getPercent()) + "%");
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -243,6 +249,14 @@ public class ClassGradesActivity extends ActionBarActivity
         else if (id == R.id.recent)
         {
             Intent go = new Intent(this, RecentGradesActivity.class);
+            this.startActivity(go);
+            return true;
+        }
+        else if (id == R.id.search)
+        {
+            Intent go = new Intent(this, SearchActivity.class);
+            go.putExtra(SELECTED_COURSE_ID, position);
+            go.putExtra(ALL_CLASSES_ID, false);
             this.startActivity(go);
             return true;
         }
