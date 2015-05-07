@@ -46,6 +46,15 @@ public class SearchActivity extends ActionBarActivity
         course = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0));
         allClasses = getIntent().getBooleanExtra(ClassesActivity.ALL_CLASSES_ID, false);
 
+        if(allClasses)
+        {
+            setTitle("Search: All Classes");
+        }
+        else
+        {
+            setTitle("Search: " + course.getCourseName());
+        }
+
         final Context c = this;
 
         search.addTextChangedListener(new TextWatcher()
