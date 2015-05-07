@@ -1,6 +1,7 @@
 package com.fruko.materialcampus;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -26,6 +27,11 @@ import us.plxhack.InfiniteCampus.api.course.Course;
  */
 public class SearchActivity extends ActionBarActivity
 {
+    public final static String SELECTED_COURSE_ID = "com.fruko.materialcampus.SELECTED_COURSE_ID";
+    public final static String SELECTED_ASSIGNMENT_ID = "com.fruko.materialcampus.SELECTED_ASSIGNMENT_ID";
+    public final static String SELECTED_CATEGORY_ID = "com.fruko.materialcampus.SELECTED_CATEGORY_ID";
+    public final static String SELECTED_TASK_ID = "com.fruko.materialcampus.SELECTED_TASK_ID";
+
     EditText search;
     ListView list;
     Course course;
@@ -113,6 +119,33 @@ public class SearchActivity extends ActionBarActivity
                             (view.findViewById(R.id.className)).setVisibility(View.GONE);
                         }
 
+                        view.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent(c, AssignmentActivity.class);
+                                for(int i = 0; i < InfiniteCampusApi.userInfo.courses.size(); i++)
+                                {
+                                    for(int j = 0; j < InfiniteCampusApi.userInfo.courses.get(i).tasks.size(); j++)
+                                    {
+                                        for(int k = 0; k < InfiniteCampusApi.userInfo.courses.get(i).tasks.get(j).gradeCategories.size(); k++)
+                                        {
+                                            for(int l = 0; l < InfiniteCampusApi.userInfo.courses.get(i).tasks.get(j).gradeCategories.get(k).activities.size(); l++)
+                                            {
+                                                Activity activity = InfiniteCampusApi.userInfo.courses.get(i).tasks.get(j).gradeCategories.get(k).activities.get(l);
+                                                if(activity.id.equals(results.get(position).id))
+                                                {
+                                                    intent.putExtra(SELECTED_COURSE_ID, i);
+                                                    intent.putExtra(SELECTED_CATEGORY_ID, k);
+                                                    intent.putExtra(SELECTED_ASSIGNMENT_ID, l);
+                                                    intent.putExtra(SELECTED_TASK_ID, j);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                startActivity(intent);
+                            }
+                        });
                         return view;
                     }
                 });

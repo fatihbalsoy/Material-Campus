@@ -88,7 +88,7 @@ public class ClassGradesActivity extends ActionBarActivity
                     else
                         percent = new DecimalFormat("#.00").format(a.percentage) + "%";
 
-                    String[] assignment = {a.name, percent, a.letterGrade};
+                    String[] assignment = {a.name, percent, a.letterGrade, Integer.toString(i), Integer.toString(k)};
                     category.add(assignment);
                 }
 
@@ -113,7 +113,7 @@ public class ClassGradesActivity extends ActionBarActivity
                 view = super.getView(position, convertView, parent);
 
                 SharedPreferences settings = getSharedPreferences("MaterialCampus", 0);
-                List<String[]> assignments = gradesArray.get(position);
+                final List<String[]> assignments = gradesArray.get(position);
 
                 final LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
 
@@ -176,9 +176,9 @@ public class ClassGradesActivity extends ActionBarActivity
                         public void onClick(View view) {
                             Intent intent = new Intent(c, AssignmentActivity.class);
                             intent.putExtra(SELECTED_COURSE_ID, getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
-                            intent.putExtra(SELECTED_CATEGORY_ID, position);
+                            intent.putExtra(SELECTED_CATEGORY_ID, Integer.parseInt(assignments.get(a+1)[4]));
                             intent.putExtra(SELECTED_ASSIGNMENT_ID, a);
-                            intent.putExtra(SELECTED_TASK_ID, 0);
+                            intent.putExtra(SELECTED_TASK_ID, Integer.parseInt(assignments.get(a+1)[3]));
                             startActivity(intent);
                         }
                     });
