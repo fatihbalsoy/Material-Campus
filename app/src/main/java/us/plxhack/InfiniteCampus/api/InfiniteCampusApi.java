@@ -746,7 +746,7 @@ public class InfiniteCampusApi
                 for(int k = 0; k < course.tasks.get(i).gradeCategories.get(j).activities.size(); k++)
                 {
                     Activity activity = course.tasks.get(i).gradeCategories.get(j).activities.get(k);
-                    if(activity.name.contains(search))
+                    if(activity.name.toLowerCase().contains(search.toLowerCase()))
                     {
                         assignments.add(activity);
                     }
@@ -768,7 +768,7 @@ public class InfiniteCampusApi
                     for(int k = 0; k < userInfo.courses.get(l).tasks.get(i).gradeCategories.get(j).activities.size(); k++)
                     {
                         Activity activity = userInfo.courses.get(l).tasks.get(i).gradeCategories.get(j).activities.get(k);
-                        if(activity.name.contains(search))
+                        if(activity.name.toLowerCase().contains(search.toLowerCase()))
                         {
                             assignments.add(activity);
                         }
