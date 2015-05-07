@@ -8,6 +8,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
+        android:textCursorDrawable="@null"
+        android:textColor="@android:color/white"
+        android:background="@color/accent"
         android:id="@+id/search"/>
 
     <ListView

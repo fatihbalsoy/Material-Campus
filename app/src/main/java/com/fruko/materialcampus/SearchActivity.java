@@ -40,9 +40,6 @@ public class SearchActivity extends ActionBarActivity
         search = (EditText) findViewById(R.id.search);
         list = (ListView) findViewById(R.id.results);
 
-        search.setTextColor(Color.WHITE);
-        search.setBackgroundColor(getResources().getColor(R.color.accent));
-
         course = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0));
         allClasses = getIntent().getBooleanExtra(ClassesActivity.ALL_CLASSES_ID, false);
 
