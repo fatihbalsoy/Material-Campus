@@ -97,7 +97,7 @@ public class SearchActivity extends ActionBarActivity
                         view = super.getView(position, convertView, parent);
 
                         ((TextView) view.findViewById(R.id.name)).setText(results.get(position).getName());
-                        TextView grade = (TextView) findViewById(R.id.grade);
+                        TextView grade = (TextView) view.findViewById(R.id.grade);
 
                         String percent = "";
                         if (results.get(position).isMissing())
