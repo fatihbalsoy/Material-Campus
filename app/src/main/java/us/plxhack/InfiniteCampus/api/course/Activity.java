@@ -21,6 +21,7 @@ public class Activity
     private String dueDate;
     private String id;
     private String className;
+    private boolean existing;
 
     public Activity(Element activityElement, String courseName)
     {
@@ -60,7 +61,7 @@ public class Activity
             {
                 changed = true;
             }
-
+            existing = !changed;
             if(changed)
             {
                 InfiniteCampusApi.getInstance().getUpdated().add(this);
@@ -86,6 +87,11 @@ public class Activity
         missing = jsonActivity.getBoolean("missing");
         dueDate = jsonActivity.getString("dueDate");
         className = jsonActivity.getString("className");
+        existing = jsonActivity.getBoolean("existing");
+        if(!existing)
+        {
+            InfiniteCampusApi.getInstance().getUpdated().add(this);
+        }
     }
 
     public Activity( String name )
@@ -128,5 +134,9 @@ public class Activity
     public String getClassName()
     {
         return className;
+    }
+    public boolean isExisting()
+    {
+        return existing;
     }
 }

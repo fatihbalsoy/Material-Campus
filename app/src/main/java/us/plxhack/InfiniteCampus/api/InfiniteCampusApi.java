@@ -291,6 +291,7 @@ public class InfiniteCampusApi
                         jsonActivity.put("missing", activity.isMissing());
                         jsonActivity.put("dueDate", activity.getDueDate());
                         jsonActivity.put("className", activity.getClassName());
+                        jsonActivity.put("existing", activity.isExisting());
 
                         jsonActivities.put(jsonActivity);
                     }

@@ -23,6 +23,7 @@ import java.util.List;
 
 import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 import us.plxhack.InfiniteCampus.api.course.Activity;
+import us.plxhack.InfiniteCampus.api.course.Course;
 
 /**
  * Created by mail929 on 5/1/15.
@@ -31,6 +32,10 @@ public class RecentGradesActivity extends ActionBarActivity
 {
     private ListView assignments;
     List<String[]> assignmentsArray = new ArrayList<>();
+    public final static String SELECTED_COURSE_ID = "com.fruko.materialcampus.SELECTED_COURSE_ID";
+    public final static String SELECTED_ASSIGNMENT_ID = "com.fruko.materialcampus.SELECTED_ASSIGNMENT_ID";
+    public final static String SELECTED_CATEGORY_ID = "com.fruko.materialcampus.SELECTED_CATEGORY_ID";
+    public final static String SELECTED_TASK_ID = "com.fruko.materialcampus.SELECTED_TASK_ID";
 
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -56,7 +61,7 @@ public class RecentGradesActivity extends ActionBarActivity
                         else
                             percent = new DecimalFormat("#.00").format(a.getPercentage()) + "%";
 
-                        String[] assignment = {a.getName(), percent, a.getLetterGrade(), a.getClassName()};
+                        String[] assignment = {a.getName(), percent, a.getLetterGrade(), a.getClassName(), a.getId()};
                         assignmentsArray.add(assignment);
                     }
 
@@ -111,6 +116,34 @@ public class RecentGradesActivity extends ActionBarActivity
                     if(grade.getText().toString().equals("Missing"))
                         grade.setTextColor(Color.RED);
 
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getContext(), AssignmentActivity.class);
+                        List<Course> courses = InfiniteCampusApi.getInstance().getUserInfo().getCourses();
+                        for(int i = 0; i < courses.size(); i++)
+                        {
+                            for(int j = 0; j < courses.get(i).tasks.size(); j++)
+                            {
+                                for(int k = 0; k < courses.get(i).tasks.get(j).getCategories().size(); k++)
+                                {
+                                    for(int l = 0; l < courses.get(i).tasks.get(j).getCategories().get(k).getActivites().size(); l++)
+                                    {
+                                        Activity activity = courses.get(i).tasks.get(j).getCategories().get(k).getActivites().get(l);
+                                        if(activity.getId().equals(assignmentsArray.get(position)[4]))
+                                        {
+                                            intent.putExtra(SELECTED_COURSE_ID, i);
+                                            intent.putExtra(SELECTED_CATEGORY_ID, k);
+                                            intent.putExtra(SELECTED_ASSIGNMENT_ID, l);
+                                            intent.putExtra(SELECTED_TASK_ID, j);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        startActivity(intent);
+                    }
+                });
                 return view;
             }
         });
