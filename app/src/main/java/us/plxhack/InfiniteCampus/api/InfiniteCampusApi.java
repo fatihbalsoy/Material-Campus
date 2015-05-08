@@ -401,14 +401,38 @@ public class InfiniteCampusApi
             } catch (JSONException e)
             {
                 e.printStackTrace();
-                return false;
+                if(online)
+                {
+                    System.out.println("Loading data from internet");
+                    if(!saveFile.exists())
+                    {
+                        saveFile.createNewFile();
+                    }
+                    return loadRemoteData(districtCode, username, password, saveFile);
+                }
+                else
+                {
+                    return false;
+                }
             }
             System.out.println("Finished loading data");
         }
         else
         {
-            System.out.println("Please connect to the internet");
-            return false;
+            if(online)
+            {
+                System.out.println("Loading data from internet");
+                if(!saveFile.exists())
+                {
+                    saveFile.createNewFile();
+                }
+                return loadRemoteData(districtCode, username, password, saveFile);
+            }
+            else
+            {
+                System.out.println("Please connect to the internet");
+                return false;
+            }
         }
 
 		return true;
