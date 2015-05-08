@@ -231,7 +231,7 @@ public class LoginActivity extends AccountAuthenticatorActivity
         {
             try
             {
-                return InfiniteCampusApi.login(mDistrict, mUser, mPassword, getApplicationContext(), false);
+                return InfiniteCampusApi.getInstance().login(mDistrict, mUser, mPassword, getApplicationContext(), false);
             }
             catch (Exception e)
             {

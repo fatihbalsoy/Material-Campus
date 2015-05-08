@@ -49,7 +49,7 @@ public class ClassGradesActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_classgrades);
-        course = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
+        course = InfiniteCampusApi.getInstance().userInfo.courses.get(getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
         position = getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0);
         setTitle(course.getCourseName() + " - " + new DecimalFormat("#.00").format(course.getPercent()) + "%");
 
@@ -249,6 +249,12 @@ public class ClassGradesActivity extends ActionBarActivity
         else if (id == R.id.recent)
         {
             Intent go = new Intent(this, RecentGradesActivity.class);
+            this.startActivity(go);
+            return true;
+        }
+        else if (id == R.id.missing)
+        {
+            Intent go = new Intent(this, MissingActivity.class);
             this.startActivity(go);
             return true;
         }

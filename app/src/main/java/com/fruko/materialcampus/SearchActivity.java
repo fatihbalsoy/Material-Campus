@@ -46,7 +46,7 @@ public class SearchActivity extends ActionBarActivity
         search = (EditText) findViewById(R.id.search);
         list = (ListView) findViewById(R.id.results);
 
-        course = InfiniteCampusApi.userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0));
+        course = InfiniteCampusApi.getInstance().userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0));
         allClasses = getIntent().getBooleanExtra(ClassesActivity.ALL_CLASSES_ID, false);
 
         if(allClasses)
@@ -77,11 +77,11 @@ public class SearchActivity extends ActionBarActivity
             {
                 if(allClasses)
                 {
-                    results = InfiniteCampusApi.searchAllClasses(search.getText().toString());
+                    results = InfiniteCampusApi.getInstance().searchAllClasses(search.getText().toString());
                 }
                 else
                 {
-                    results = InfiniteCampusApi.searchClass(course, search.getText().toString());
+                    results = InfiniteCampusApi.getInstance().searchClass(course, search.getText().toString());
                 }
 
                 list.setAdapter(new ArrayAdapter<Activity>(c, R.layout.assignment_search_item, R.id.name, results)
@@ -97,10 +97,14 @@ public class SearchActivity extends ActionBarActivity
                         view = super.getView(position, convertView, parent);
 
                         ((TextView) view.findViewById(R.id.name)).setText(results.get(position).name);
-                        
+                        TextView grade = (TextView) findViewById(R.id.grade);
+
                         String percent = "";
                         if (results.get(position).missing)
+                        {
                             percent = "Missing";
+                            grade.setTextColor(Color.RED);
+                        }
                         else if (results.get(position).letterGrade.equals("N/A"))
                             percent = "Not Graded";
                         else if (results.get(position).percentage == 0)
@@ -108,7 +112,8 @@ public class SearchActivity extends ActionBarActivity
                         else
                             percent = new DecimalFormat("#.00").format(results.get(position).percentage) + "%";
 
-                        ((TextView) view.findViewById(R.id.grade)).setText(percent);
+                        grade.setText(percent);
+
                         if(allClasses)
                         {
                             ((TextView) view.findViewById(R.id.className)).setText(results.get(position).className);
@@ -123,15 +128,15 @@ public class SearchActivity extends ActionBarActivity
                             @Override
                             public void onClick(View view) {
                                 Intent intent = new Intent(c, AssignmentActivity.class);
-                                for(int i = 0; i < InfiniteCampusApi.userInfo.courses.size(); i++)
+                                for(int i = 0; i < InfiniteCampusApi.getInstance().userInfo.courses.size(); i++)
                                 {
-                                    for(int j = 0; j < InfiniteCampusApi.userInfo.courses.get(i).tasks.size(); j++)
+                                    for(int j = 0; j < InfiniteCampusApi.getInstance().userInfo.courses.get(i).tasks.size(); j++)
                                     {
-                                        for(int k = 0; k < InfiniteCampusApi.userInfo.courses.get(i).tasks.get(j).gradeCategories.size(); k++)
+                                        for(int k = 0; k < InfiniteCampusApi.getInstance().userInfo.courses.get(i).tasks.get(j).gradeCategories.size(); k++)
                                         {
-                                            for(int l = 0; l < InfiniteCampusApi.userInfo.courses.get(i).tasks.get(j).gradeCategories.get(k).activities.size(); l++)
+                                            for(int l = 0; l < InfiniteCampusApi.getInstance().userInfo.courses.get(i).tasks.get(j).gradeCategories.get(k).activities.size(); l++)
                                             {
-                                                Activity activity = InfiniteCampusApi.userInfo.courses.get(i).tasks.get(j).gradeCategories.get(k).activities.get(l);
+                                                Activity activity = InfiniteCampusApi.getInstance().userInfo.courses.get(i).tasks.get(j).gradeCategories.get(k).activities.get(l);
                                                 if(activity.id.equals(results.get(position).id))
                                                 {
                                                     intent.putExtra(SELECTED_COURSE_ID, i);

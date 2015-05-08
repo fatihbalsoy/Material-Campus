@@ -15,11 +15,13 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.Buffer;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,15 +46,25 @@ import us.plxhack.InfiniteCampus.api.course.Course;
 
 public class InfiniteCampusApi
 {
-	public static DistrictInfo districtInfo;
-	public static Student userInfo;
-	private static boolean isLoggedIn = false;
+    private static InfiniteCampusApi instance;
+	public DistrictInfo districtInfo;
+	public Student userInfo;
+	private boolean isLoggedIn = false;
 
-    private static String _districtCode, _username, _password;
+    private String _districtCode, _username, _password;
 
-    private static Context context;
+    private Context context;
 
-	private static URL getFormattedURL( String document )
+    public static InfiniteCampusApi getInstance()
+    {
+        if(instance == null)
+        {
+            instance = new InfiniteCampusApi();
+        }
+        return instance;
+    }
+
+	private URL getFormattedURL( String document )
 	{
 		try
 		{
@@ -65,28 +77,16 @@ public class InfiniteCampusApi
 		}
 	}
 	
-	private static String getFormattedURLString( String document )
+	private String getFormattedURLString( String document )
 	{
 		return districtInfo.getDistrictBaseURL() + document;
 	}
 
-    public static void loadData(File existing, File saveFile) throws JSONException, IOException
+    public void loadData(File saveFile) throws JSONException, IOException
     {
-        List<Activity> newAssignments = new ArrayList<>();
-        List<String> existingAssignments = new ArrayList<>();
-
-        BufferedReader br = new BufferedReader(new FileReader(existing));
-        String line = "";
-        while((line = br.readLine()) != null)
-        {
-            existingAssignments.add(line.split("-")[0]);
-            System.out.println(line.split("-")[0] + " already exists");
-        }
-        br.close();
-
         StringBuilder sb = new StringBuilder();
-        br = new BufferedReader(new FileReader(saveFile));
-        line = "";
+        BufferedReader br = new BufferedReader(new FileReader(saveFile));
+        String line = "";
         while((line = br.readLine()) != null)
         {
             sb.append(line);
@@ -160,25 +160,6 @@ public class InfiniteCampusApi
                         activity.dueDate = jsonActivity.getString("dueDate");
                         activity.className = jsonActivity.getString("className");
 
-                        boolean found = false;
-                        for (int o = 0; o < existingAssignments.size(); o++)
-                        {
-                            if (existingAssignments.get(o).equals(activity.id))
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-
-                        if (!activity.letterGrade.equals("N/A") || activity.missing)
-                        {
-                            sb.append(activity.id + "-" + activity.earnedPoints + "\n");
-                            if (!found)
-                            {
-                                newAssignments.add(activity);
-                            }
-                        }
-
                         activities.add(activity);
                     }
                     category.activities = activities;
@@ -194,7 +175,6 @@ public class InfiniteCampusApi
             courses.add(course);
         }
         userInfo.courses = courses;
-        userInfo.newAssignments = newAssignments;
 
         JSONArray jsonCalendars = json.getJSONArray("calendars");
         List<Calendar> calendars = new ArrayList<>();
@@ -236,25 +216,15 @@ public class InfiniteCampusApi
         }
         userInfo.calendars = calendars;
 
-
     }
 
-    public static boolean loadRemoteData(String districtCode, String username, String password, File existing, File saveFile) throws IOException, ParsingException
+    public boolean loadRemoteData(String districtCode, String username, String password, File saveFile) throws IOException, ParsingException
     {
         //Get District Information from district code
         CoreManager core = new CoreManager(districtCode);
         districtInfo = core.getDistrictInfo();
 
-        List<Activity> newAssignments = new ArrayList<>();
-        List<String> existingAssignments = new ArrayList<>();
-
-        BufferedReader br = new BufferedReader(new FileReader(existing));
-        String line = "";
-        while((line = br.readLine()) != null)
-        {
-            existingAssignments.add(line.split("-")[0]);
-            System.out.println(line.split("-")[0] + " already exists");
-        }
+        List<Activity> updated = new ArrayList<>();
 
         //Try to log in with given district info, username, and pass
         if (!core.attemptLogin(username, password, core.getDistrictInfo()))
@@ -326,9 +296,6 @@ public class InfiniteCampusApi
                 }
             }
         }
-
-        StringBuilder sb = new StringBuilder();
-
         ArrayList<Course> courses = new ArrayList<Course>();
 
         for (int i=0;i < courseElements.size();++i)
@@ -410,23 +377,36 @@ public class InfiniteCampusApi
                                         else
                                             a.letterGrade = "N/A";
 
-                                        boolean found = false;
-                                        for(int o = 0; o < existingAssignments.size(); o++)
+                                        try
                                         {
-                                            if(existingAssignments.get(o).equals(a.id))
+                                            JSONObject jsonActivity = findAssignmentJSON(saveFile, a.id);
+                                            boolean changed = false;
+                                            if(jsonActivity != null)
                                             {
-                                                found = true;
-                                                break;
+                                                if(a.earnedPoints != null)
+                                                {
+                                                    if(!a.earnedPoints.equals(jsonActivity.getString("earnedPoints")) || jsonActivity.getString("earnedPoints") == null)
+                                                    {
+                                                        changed = true;
+                                                    }
+                                                }
+                                                if(a.missing != jsonActivity.getBoolean("missing"))
+                                                {
+                                                    changed = true;
+                                                }
                                             }
-                                        }
+                                            else
+                                            {
+                                                changed = true;
+                                            }
 
-                                        if(!a.letterGrade.equals("N/A") || a.missing)
-                                        {
-                                            sb.append(a.id + "-" + a.earnedPoints + "\n");
-                                            if(!found)
+                                            if(changed)
                                             {
-                                                newAssignments.add(a);
+                                                updated.add(a);
                                             }
+                                        } catch (JSONException e1)
+                                        {
+                                            e1.printStackTrace();
                                         }
                                         category.activities.add(a);
                                     }
@@ -446,14 +426,8 @@ public class InfiniteCampusApi
 
         }
 
-        //save grades to be compared when looking for new grades
-        BufferedWriter bw = new BufferedWriter(new FileWriter(existing));
-        bw.write(sb.toString());
-        bw.close();
-
-        userInfo.newAssignments = newAssignments;
-
         userInfo.courses = new ArrayList<Course>( );
+        userInfo.newAssignments = updated;
 
         //alphabetically sort course list
         for (int i=0;i < courses.size();++i)
@@ -496,7 +470,7 @@ public class InfiniteCampusApi
         return true;
     }
 
-    public static void saveData(File saveFile) throws JSONException, IOException
+    public void saveData(File saveFile) throws JSONException, IOException
     {
         JSONObject json = new JSONObject();
 
@@ -642,12 +616,12 @@ public class InfiniteCampusApi
         bw.close();
     }
 
-	public static boolean isLoggedIn( )
+	public boolean isLoggedIn( )
 	{
 		return isLoggedIn;
 	}
 	
-	public static boolean login( String districtCode, String username, String password, Context con , boolean ignoreDontSync) throws ParsingException, IOException
+	public boolean login( String districtCode, String username, String password, Context con , boolean ignoreDontSync) throws ParsingException, IOException
     {
         context = con;
 
@@ -663,29 +637,24 @@ public class InfiniteCampusApi
             online = ni.isConnected();
         }
 
-        File existing = new File(context.getFilesDir(), "existinggrades.data");
         File saveFile = new File(context.getFilesDir(), "save.data");
 
         SharedPreferences settings = context.getSharedPreferences("MaterialCampus", 0);
         if(online && (!settings.getBoolean("dontSync", false) || ignoreDontSync))
         {
             System.out.println("Loading data from internet");
-            if(!existing.exists())
-            {
-                existing.createNewFile();
-            }
             if(!saveFile.exists())
             {
-                existing.createNewFile();
+                saveFile.createNewFile();
             }
-            return loadRemoteData(districtCode, username, password, existing, saveFile);
+            return loadRemoteData(districtCode, username, password, saveFile);
         }
         else if(saveFile.exists())
         {
-            System.out.println("No internet connect but save file exists");
+            System.out.println("No internet connection but save file exists");
             try
             {
-                loadData(existing, saveFile);
+                loadData(saveFile);
             } catch (JSONException e)
             {
                 e.printStackTrace();
@@ -702,13 +671,12 @@ public class InfiniteCampusApi
 		return true;
 	}
 
-    public static void refresh()
+    public void refresh()
     {
-        File existing = new File(context.getFilesDir(), "existinggrades.data");
         File saveFile = new File(context.getFilesDir(), "save.data");
         try
         {
-            loadData(existing, saveFile);
+            loadData(saveFile);
         } catch (JSONException e)
         {
             e.printStackTrace();
@@ -719,7 +687,7 @@ public class InfiniteCampusApi
         System.out.println("Finished loading data");
     }
 
-    public static boolean relogin()
+    public boolean relogin()
     {
         System.out.println("Relogging in");
         if (_username == null || _password == null || _districtCode == null)
@@ -736,7 +704,7 @@ public class InfiniteCampusApi
         }
     }
 
-    public static List<Activity> searchClass(Course course, String search)
+    public List<Activity> searchClass(Course course, String search)
     {
         List<Activity> assignments = new ArrayList<>();
         for(int i = 0; i < course.tasks.size(); i++)
@@ -756,30 +724,37 @@ public class InfiniteCampusApi
         return assignments;
     }
 
-    public static List<Activity> searchAllClasses(String search)
+    public List<Activity> searchAllClasses(String search)
     {
-        List<Activity> assignments = new ArrayList<>();
-        for(int l = 0; l < userInfo.courses.size(); l++)
+        List<Activity> results = new ArrayList<>();
+        List<Activity> assignments = getAllAssignments();
+        for(int i = 0; i < assignments.size(); i++)
         {
-            for(int i = 0; i < userInfo.courses.get(l).tasks.size(); i++)
+            Activity activity = assignments.get(i);
+            if(activity.name.toLowerCase().contains(search.toLowerCase()))
             {
-                for(int j = 0; j < userInfo.courses.get(l).tasks.get(i).gradeCategories.size(); j++)
-                {
-                    for(int k = 0; k < userInfo.courses.get(l).tasks.get(i).gradeCategories.get(j).activities.size(); k++)
-                    {
-                        Activity activity = userInfo.courses.get(l).tasks.get(i).gradeCategories.get(j).activities.get(k);
-                        if(activity.name.toLowerCase().contains(search.toLowerCase()))
-                        {
-                            assignments.add(activity);
-                        }
-                    }
-                }
+                results.add(activity);
             }
         }
-        return assignments;
+        return results;
     }
 
-	public static void printDebugInfo()
+    public List<Activity> getAllMissingAssignments()
+    {
+        List<Activity> results = new ArrayList<>();
+        List<Activity> assignments = getAllAssignments();
+        for(int i = 0; i < assignments.size(); i++)
+        {
+            Activity activity = assignments.get(i);
+            if(activity.missing)
+            {
+                results.add(activity);
+            }
+        }
+        return results;
+    }
+
+	public void printDebugInfo()
 	{
 		System.out.println("District Information:");
 		System.out.println("District: " + districtInfo.getDistrictName());
@@ -796,4 +771,64 @@ public class InfiniteCampusApi
 			System.out.println("\nNot logged in");
 		}
 	}
+
+    public JSONObject findAssignmentJSON(File saveFile, String assignmentId) throws JSONException, IOException
+    {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = new BufferedReader(new FileReader(saveFile));
+        String line = "";
+        while((line = br.readLine()) != null)
+        {
+            sb.append(line);
+        }
+
+        JSONObject json = new JSONObject(sb.toString());
+
+        JSONArray jsonCourses = json.getJSONArray("courses");
+        for(int i = 0; i < jsonCourses.length(); i++)
+        {
+            JSONObject jsonCourse = jsonCourses.getJSONObject(i);
+            JSONArray jsonTasks = jsonCourse.getJSONArray("tasks");
+            for(int j = 0; j < jsonTasks.length(); j++)
+            {
+                JSONObject jsonTask = jsonTasks.getJSONObject(j);
+                JSONArray jsonCategories = jsonTask.getJSONArray("categories");
+                for(int k = 0; k < jsonCategories.length(); k++)
+                {
+                    JSONObject jsonCategory = jsonCategories.getJSONObject(k);
+                    JSONArray jsonActivities = jsonCategory.getJSONArray("activities");
+                    for(int l = 0; l < jsonActivities.length(); l++)
+                    {
+                        JSONObject jsonActivity = jsonActivities.getJSONObject(l);
+                        String id = jsonActivity.getString("id");
+                        if(id.equals(assignmentId))
+                        {
+                            return jsonActivity;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public List<Activity> getAllAssignments()
+    {
+        List<Activity> assignments = new ArrayList<>();
+        for(int l = 0; l < userInfo.courses.size(); l++)
+        {
+            for(int i = 0; i < userInfo.courses.get(l).tasks.size(); i++)
+            {
+                for(int j = 0; j < userInfo.courses.get(l).tasks.get(i).gradeCategories.size(); j++)
+                {
+                    for(int k = 0; k < userInfo.courses.get(l).tasks.get(i).gradeCategories.get(j).activities.size(); k++)
+                    {
+                        Activity activity = userInfo.courses.get(l).tasks.get(i).gradeCategories.get(j).activities.get(k);
+                        assignments.add(activity);
+                    }
+                }
+            }
+        }
+        return assignments;
+    }
 }

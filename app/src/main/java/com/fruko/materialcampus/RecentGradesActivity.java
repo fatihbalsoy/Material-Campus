@@ -37,8 +37,10 @@ public class RecentGradesActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recentgrades);
 
+        setTitle("Recently Updated Grades");
+        
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        List<Activity> newAssignments = InfiniteCampusApi.userInfo.newAssignments;
+        List<Activity> newAssignments = InfiniteCampusApi.getInstance().userInfo.newAssignments;
 
         for (int j = 0; j < newAssignments.size(); j++)
                     {

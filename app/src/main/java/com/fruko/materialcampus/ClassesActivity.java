@@ -44,7 +44,7 @@ public class ClassesActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_classes);
 
-        setTitle( InfiniteCampusApi.userInfo.firstName + ' ' + InfiniteCampusApi.userInfo.lastName );
+        setTitle(InfiniteCampusApi.getInstance().userInfo.firstName + ' ' + InfiniteCampusApi.getInstance().userInfo.lastName );
         getCourseList();
 
         final SwipeRefreshLayout swipeView = (SwipeRefreshLayout)findViewById( R.id.class_swipe );
@@ -63,9 +63,9 @@ public class ClassesActivity extends ActionBarActivity
     {
         final ArrayList<String[]> classNameArray = new ArrayList<>();
 
-        for (int i=0;i < InfiniteCampusApi.userInfo.courses.size(); ++i)
+        for (int i=0;i < InfiniteCampusApi.getInstance().userInfo.courses.size(); ++i)
         {
-            Course course = InfiniteCampusApi.userInfo.courses.get(i);
+            Course course = InfiniteCampusApi.getInstance().userInfo.courses.get(i);
             String[] newArray = {course.getCourseName(), new DecimalFormat("#.00").format(course.getPercent()) + "%", course.getTeacherName(), course.letterGrade };
             classNameArray.add(newArray);
         }
@@ -187,7 +187,7 @@ public class ClassesActivity extends ActionBarActivity
         protected Boolean doInBackground( Void... params)
         {
             canViewGrades = false;
-            return InfiniteCampusApi.relogin();
+            return InfiniteCampusApi.getInstance().relogin();
         }
 
         protected void onPostExecute( Boolean result )
@@ -226,6 +226,12 @@ public class ClassesActivity extends ActionBarActivity
         else if (id == R.id.recent)
         {
             Intent go = new Intent(this, RecentGradesActivity.class);
+            this.startActivity(go);
+            return true;
+        }
+        else if (id == R.id.missing)
+        {
+            Intent go = new Intent(this, MissingActivity.class);
             this.startActivity(go);
             return true;
         }

@@ -234,7 +234,7 @@ public class AccountListActivity extends ActionBarActivity
             Boolean result = false;
             try
             {
-                result = InfiniteCampusApi.login(mDistrict, mUser, mPassword, getApplicationContext(), false);
+                result = InfiniteCampusApi.getInstance().login(mDistrict, mUser, mPassword, getApplicationContext(), false);
             } catch (ParsingException e)
             {
                 e.printStackTrace();
