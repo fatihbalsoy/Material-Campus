@@ -40,23 +40,23 @@ public class RecentGradesActivity extends ActionBarActivity
         setTitle("Recently Updated Grades");
         
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        List<Activity> newAssignments = InfiniteCampusApi.getInstance().userInfo.newAssignments;
+        List<Activity> newAssignments = InfiniteCampusApi.getInstance().getUserInfo().getNewAssignments();
 
         for (int j = 0; j < newAssignments.size(); j++)
                     {
                         us.plxhack.InfiniteCampus.api.course.Activity a = newAssignments.get(j);
 
                         String percent = "";
-                        if (a.missing)
+                        if (a.isMissing())
                             percent = "Missing";
-                        else if (a.letterGrade.equals("N/A"))
+                        else if (a.getLetterGrade().equals("N/A"))
                             percent = "Not Graded";
-                        else if (a.percentage == 0)
+                        else if (a.getPercentage() == 0)
                             percent = "0.00%";
                         else
-                            percent = new DecimalFormat("#.00").format(a.percentage) + "%";
+                            percent = new DecimalFormat("#.00").format(a.getPercentage()) + "%";
 
-                        String[] assignment = {a.name, percent, a.letterGrade, a.className};
+                        String[] assignment = {a.getName(), percent, a.getLetterGrade(), a.getClassName()};
                         assignmentsArray.add(assignment);
                     }
 
@@ -147,30 +147,4 @@ public class RecentGradesActivity extends ActionBarActivity
         super.onDestroy();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        int id = item.getItemId();
-
-        if (id == R.id.accounts)
-        {
-            Intent go = new Intent(this, AccountListActivity.class);
-            this.startActivity(go);
-            return true;
-        }
-        /*else if (id == R.id.settings)
-        {
-            Intent go = new Intent(this, SettingsActivity.class);
-            this.startActivity(go);
-            return true;
-        }*/
-        return super.onOptionsItemSelected(item);
-    }
 }

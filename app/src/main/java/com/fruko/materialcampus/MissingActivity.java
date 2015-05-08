@@ -15,6 +15,7 @@ import java.util.List;
 
 import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 import us.plxhack.InfiniteCampus.api.course.Activity;
+import us.plxhack.InfiniteCampus.api.course.Course;
 
 /**
  * Created by mail929 on 5/7/15.
@@ -50,23 +51,24 @@ public class MissingActivity extends ActionBarActivity
                 }
                 view = super.getView(position, convertView, parent);
 
-                ((TextView) view.findViewById(R.id.name)).setText(missing.get(position).name);
-                ((TextView) view.findViewById(R.id.className)).setText(missing.get(position).className);
+                ((TextView) view.findViewById(R.id.name)).setText(missing.get(position).getName());
+                ((TextView) view.findViewById(R.id.className)).setText(missing.get(position).getClassName());
 
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Intent intent = new Intent(getContext(), AssignmentActivity.class);
-                        for(int i = 0; i < InfiniteCampusApi.getInstance().userInfo.courses.size(); i++)
+                        List<Course> courses = InfiniteCampusApi.getInstance().getUserInfo().getCourses();
+                        for(int i = 0; i < courses.size(); i++)
                         {
-                            for(int j = 0; j < InfiniteCampusApi.getInstance().userInfo.courses.get(i).tasks.size(); j++)
+                            for(int j = 0; j < courses.get(i).tasks.size(); j++)
                             {
-                                for(int k = 0; k < InfiniteCampusApi.getInstance().userInfo.courses.get(i).tasks.get(j).gradeCategories.size(); k++)
+                                for(int k = 0; k < courses.get(i).tasks.get(j).getCategories().size(); k++)
                                 {
-                                    for(int l = 0; l < InfiniteCampusApi.getInstance().userInfo.courses.get(i).tasks.get(j).gradeCategories.get(k).activities.size(); l++)
+                                    for(int l = 0; l < courses.get(i).tasks.get(j).getCategories().get(k).getActivites().size(); l++)
                                     {
-                                        Activity activity = InfiniteCampusApi.getInstance().userInfo.courses.get(i).tasks.get(j).gradeCategories.get(k).activities.get(l);
-                                        if(activity.id.equals(missing.get(position).id))
+                                        Activity activity = courses.get(i).tasks.get(j).getCategories().get(k).getActivites().get(l);
+                                        if(activity.getId().equals(missing.get(position).getId()))
                                         {
                                             intent.putExtra(SELECTED_COURSE_ID, i);
                                             intent.putExtra(SELECTED_CATEGORY_ID, k);

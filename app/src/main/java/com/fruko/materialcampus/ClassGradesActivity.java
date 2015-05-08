@@ -49,7 +49,7 @@ public class ClassGradesActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_classgrades);
-        course = InfiniteCampusApi.getInstance().userInfo.courses.get(getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
+        course = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
         position = getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0);
         setTitle(course.getCourseName() + " - " + new DecimalFormat("#.00").format(course.getPercent()) + "%");
 
@@ -61,34 +61,34 @@ public class ClassGradesActivity extends ActionBarActivity
         {
             Task task = course.tasks.get(i);
 
-            for (int k = 0; k < task.gradeCategories.size();++k)
+            for (int k = 0; k < task.getCategories().size();++k)
             {
-                Category c = task.gradeCategories.get(k);
+                Category c = task.getCategories().get(k);
 
                 String cpercent = "";
-                if (c.percentage == 0)
+                if (c.getPercentage() == 0)
                     cpercent = "0.00%";
                 else
-                    cpercent = new DecimalFormat("#.00").format(c.percentage) + "%";
+                    cpercent = new DecimalFormat("#.00").format(c.getPercentage()) + "%";
 
-                String[] title = {c.name + " - " + cpercent, ""};
+                String[] title = {c.getName() + " - " + cpercent, ""};
                 List<String[]> category = new ArrayList<>();
                 category.add(title);
 
-                for (int j = 0; j < c.activities.size(); j++) {
-                    us.plxhack.InfiniteCampus.api.course.Activity a = c.activities.get(j);
+                for (int j = 0; j < c.getActivites().size(); j++) {
+                    us.plxhack.InfiniteCampus.api.course.Activity a = c.getActivites().get(j);
 
                     String percent = "";
-                    if (a.missing)
+                    if (a.isMissing())
                         percent = "Missing";
-                    else if (a.letterGrade.equals("N/A"))
+                    else if (a.getLetterGrade().equals("N/A"))
                         percent = "Not Graded";
-                    else if (a.percentage == 0)
+                    else if (a.getPercentage() == 0)
                         percent = "0.00%";
                     else
-                        percent = new DecimalFormat("#.00").format(a.percentage) + "%";
+                        percent = new DecimalFormat("#.00").format(a.getPercentage()) + "%";
 
-                    String[] assignment = {a.name, percent, a.letterGrade, Integer.toString(i), Integer.toString(k)};
+                    String[] assignment = {a.getName(), percent, a.getLetterGrade(), Integer.toString(i), Integer.toString(k)};
                     category.add(assignment);
                 }
 

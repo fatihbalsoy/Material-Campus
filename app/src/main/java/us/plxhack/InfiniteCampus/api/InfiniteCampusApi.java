@@ -47,9 +47,11 @@ import us.plxhack.InfiniteCampus.api.course.Course;
 public class InfiniteCampusApi
 {
     private static InfiniteCampusApi instance;
-	public DistrictInfo districtInfo;
-	public Student userInfo;
+	private DistrictInfo districtInfo;
+	private Student userInfo;
 	private boolean isLoggedIn = false;
+    private File saveFile;
+    private List<Activity> updated;
 
     private String _districtCode, _username, _password;
 
@@ -94,127 +96,11 @@ public class InfiniteCampusApi
 
         JSONObject json = new JSONObject(sb.toString());
 
-        userInfo = new Student(json.getString("firstName"));
-        userInfo.middleName = json.getString("middleName");
-        userInfo.lastName = json.getString("lastName");
-        userInfo.personID = json.getString("id");
-        userInfo.studentNumber = json.getString("number");
-        userInfo.hasSecurityRole = json.getBoolean("security");
-        userInfo.isGuardian = json.getString("guardian");
+        userInfo = new Student(json);
+
         _username = json.getString("username");
         _password = json.getString("password");
         _districtCode = json.getString("districtCode");
-
-        JSONArray jsonCourses = json.getJSONArray("courses");
-        List<Course> courses = new ArrayList<>();
-        for(int i = 0; i < jsonCourses.length(); i++)
-        {
-            JSONObject jsonCourse = jsonCourses.getJSONObject(i);
-            JSONObject jsonTeacher = jsonCourse.getJSONObject("teacher");
-            Teacher teacher = new Teacher(jsonTeacher.getString("firstName"), jsonTeacher.getString("lastName"));
-            Course course = new Course(jsonCourse.getInt("number"), jsonCourse.getString("name"), teacher);
-
-            course.percentage = (float)jsonCourse.getDouble("percent");
-            course.letterGrade = jsonCourse.getString("letterGrade");
-
-            JSONArray jsonTasks = jsonCourse.getJSONArray("tasks");
-            List<Task> tasks = new ArrayList<>();
-            for(int j = 0; j < jsonTasks.length(); j++)
-            {
-                JSONObject jsonTask = jsonTasks.getJSONObject(j);
-                Task task = new Task(jsonTask.getString("name"));
-
-                task.termName = jsonTask.getString("termName");
-                task.percentage = (float)jsonTask.getDouble("percent");
-                task.earnedPoints = jsonTask.getInt("earnedPoints");
-                task.totalPoints = jsonTask.getInt("totalPoints");
-                task.weight = jsonTask.getInt("weight");
-                task.letterGrade = jsonTask.getString("letterGrade");
-
-                JSONArray jsonCategories = jsonTask.getJSONArray("categories");
-                List<Category> categories = new ArrayList<>();
-                for(int k = 0; k < jsonCategories.length(); k++)
-                {
-                    JSONObject jsonCategory = jsonCategories.getJSONObject(k);
-                    Category category = new Category(jsonCategory.getString("name"));
-
-                    category.percentage = (float)jsonCategory.getDouble("percent");
-                    category.earnedPoints = jsonCategory.getInt("earnedPoints");
-                    category.totalPoints = jsonCategory.getInt("totalPoints");
-                    category.weight = jsonCategory.getInt("weight");
-                    category.letterGrade = jsonCategory.getString("letterGrade");
-
-                    JSONArray jsonActivities = jsonCategory.getJSONArray("activities");
-                    List<Activity> activities = new ArrayList<>();
-                    for(int l = 0; l < jsonActivities.length(); l++)
-                    {
-                        JSONObject jsonActivity = jsonActivities.getJSONObject(l);
-                        Activity activity = new Activity(jsonActivity.getString("name"));
-
-                        activity.percentage = (float) jsonActivity.getDouble("percent");
-                        activity.earnedPoints = jsonActivity.getString("earnedPoints");
-                        activity.totalPoints = jsonActivity.getInt("totalPoints");
-                        activity.letterGrade = jsonActivity.getString("letterGrade");
-                        activity.id = jsonActivity.getString("id");
-                        activity.missing = jsonActivity.getBoolean("missing");
-                        activity.dueDate = jsonActivity.getString("dueDate");
-                        activity.className = jsonActivity.getString("className");
-
-                        activities.add(activity);
-                    }
-                    category.activities = activities;
-
-                    categories.add(category);
-                }
-                task.gradeCategories = categories;
-
-                tasks.add(task);
-            }
-            course.tasks = tasks;
-
-            courses.add(course);
-        }
-        userInfo.courses = courses;
-
-        JSONArray jsonCalendars = json.getJSONArray("calendars");
-        List<Calendar> calendars = new ArrayList<>();
-        for(int i = 0; i < jsonCalendars.length(); i++)
-        {
-            JSONObject jsonCalendar = jsonCalendars.getJSONObject(i);
-            Calendar calendar = new Calendar(jsonCalendar.getString("name"));
-
-            calendar.calendarID = jsonCalendar.getString("id");
-            calendar.endYear = jsonCalendar.getString("endYear");
-            calendar.schoolID = jsonCalendar.getString("schoolId");
-
-            JSONArray jsonSchedules = jsonCalendar.getJSONArray("schedules");
-            List<ScheduleStructure> schedules = new ArrayList<>();
-            for(int j = 0; j < jsonSchedules.length(); j++)
-            {
-                JSONObject jsonSchedule = jsonSchedules.getJSONObject(j);
-                ScheduleStructure schedule = new ScheduleStructure(jsonSchedule.getString("name"));
-
-                schedule.active = jsonSchedule.getBoolean("active");
-                schedule.grade = jsonSchedule.getString("grade");
-                schedule.id = jsonSchedule.getString("id");
-                schedule.is_default = jsonSchedule.getBoolean("default");
-                schedule.label = jsonSchedule.getString("label");
-                schedule.primary = jsonSchedule.getString("primary");
-                try
-                {
-                    schedule.startDate = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH).parse(jsonSchedule.getString("startDate"));
-                } catch (ParseException e)
-                {
-                    e.printStackTrace();
-                }
-
-                schedules.add(schedule);
-            }
-            calendar.schedules = schedules;
-
-            calendars.add(calendar);
-        }
-        userInfo.calendars = calendars;
 
     }
 
@@ -224,7 +110,7 @@ public class InfiniteCampusApi
         CoreManager core = new CoreManager(districtCode);
         districtInfo = core.getDistrictInfo();
 
-        List<Activity> updated = new ArrayList<>();
+        updated = new ArrayList<>();
 
         //Try to log in with given district info, username, and pass
         if (!core.attemptLogin(username, password, core.getDistrictInfo()))
@@ -253,9 +139,9 @@ public class InfiniteCampusApi
 
         List<Element> roots = new ArrayList<>();
         //Get classbook information from formatted web page
-        for(int i = 0; i < userInfo.calendars.size(); i++)
+        for(int i = 0; i < userInfo.getCalendars().size(); i++)
         {
-            URL infoURL2 = getFormattedURL("prism?&x=portal.PortalClassbook-getClassbookForAllSections&mode=classbook&personID=" + userInfo.personID + "&structureID=" + userInfo.calendars.get(i).schedules.get(0).id + "&calendarID=" + userInfo.calendars.get(i).calendarID);
+            URL infoURL2 = getFormattedURL("prism?&x=portal.PortalClassbook-getClassbookForAllSections&mode=classbook&personID=" + userInfo.getPersonID() + "&structureID=" + userInfo.getCalendars().get(i).schedules.get(0).getId() + "&calendarID=" + userInfo.getCalendars().get(i).getCalendarID());
             System.out.println("URL: " + infoURL2.toString());
             Document doc2 = builder.build(new ByteArrayInputStream(core.getContent(infoURL2, false).getBytes()));
             Element root = doc2.getRootElement().getFirstChildElement("SectionClassbooks");
@@ -296,7 +182,7 @@ public class InfiniteCampusApi
                 }
             }
         }
-        ArrayList<Course> courses = new ArrayList<Course>();
+        ArrayList<Course> courses = new ArrayList<>();
 
         for (int i=0;i < courseElements.size();++i)
         {
@@ -304,156 +190,12 @@ public class InfiniteCampusApi
 
             if(e != null)
             {
-                Course c = new Course( Integer.valueOf( e.getAttributeValue("courseNumber") ), e.getAttributeValue("courseName"), e.getAttributeValue("teacherDisplay") );
-
-                Elements taskChildren = e.getFirstChildElement("tasks").getChildElements();
-                ArrayList<Element> tasks = new ArrayList<>();
-
-                for (int j=0;j < taskChildren.size();++j)
-                {
-                    Element t = taskChildren.get(j);
-
-                    if(t != null)
-                    {
-                        if (taskChildren.get(j).getAttributeValue("name").equalsIgnoreCase("final"))
-                        {
-                            c.percentage = Float.valueOf( t.getAttributeValue("percentage") );
-                            c.letterGrade = t.getAttributeValue("letterGrade");
-                        }
-                        else if (taskChildren.get(j).getChildCount() != 0 && taskChildren.get(j).getAttributeValue("termName").equalsIgnoreCase( e.getAttributeValue("current_term") ))
-                        {
-                            tasks.add( t );
-                        }
-                    }
-                }
-
-                for (int l=0;l < tasks.size();++l)
-                {
-                    Element finalTaskGroups = tasks.get(l).getFirstChildElement("groups");
-
-                    if(finalTaskGroups != null)
-                    {
-                        Task t = new Task( tasks.get(l).getAttributeValue("name") );
-                        t.termName = tasks.get(l).getAttributeValue("termName");
-                        t.weight = Float.valueOf(tasks.get(l).getAttributeValue("weight"));
-                        t.percentage = Float.valueOf(tasks.get(l).getAttributeValue("percentage"));
-                        t.letterGrade = tasks.get(l).getAttributeValue("letterGrade");
-
-                        for (int j = 0; j < finalTaskGroups.getChildCount(); ++j)
-                        {
-                            Element groupElement = finalTaskGroups.getChildElements().get(j);
-
-                            if(groupElement != null)
-                            {
-                                Category category = new Category(groupElement.getAttributeValue("name"));
-                                category.percentage = Float.valueOf(groupElement.getAttributeValue("percentage"));
-                                category.earnedPoints = Float.valueOf(groupElement.getAttributeValue("pointsEarned"));
-                                category.totalPoints = Float.valueOf(groupElement.getAttributeValue("totalPointsPossible"));
-                                category.weight = Float.valueOf(groupElement.getAttributeValue("weight"));
-                                String gradeLetter = groupElement.getAttributeValue("letterGrade");
-                                if (gradeLetter != null)
-                                    category.letterGrade = gradeLetter;
-                                else
-                                    category.letterGrade = "N/A";
-
-                                Element activities = groupElement.getFirstChildElement("activities");
-
-                                for (int k = 0; k < activities.getChildCount(); ++k) {
-                                    Element activityElement = activities.getChildElements().get(k);
-
-                                    if(activityElement != null)
-                                    {
-                                        Activity a = new Activity(activityElement.getAttributeValue("name"));
-                                        a.percentage = Float.valueOf(activityElement.getAttributeValue("percentage"));
-                                        a.earnedPoints = activityElement.getAttributeValue("score");
-                                        a.totalPoints = Float.valueOf(activityElement.getAttributeValue("weightedTotalPoints"));
-                                        a.dueDate = activityElement.getAttributeValue("dueDate");
-                                        a.missing = Boolean.valueOf(activityElement.getAttributeValue("missing"));
-                                        a.id = activityElement.getAttributeValue("activityID");
-                                        a.className = c.getCourseName();
-                                        String letterGrade = activityElement.getAttributeValue("letterGrade");
-                                        if (letterGrade != null)
-                                            a.letterGrade = letterGrade;
-                                        else
-                                            a.letterGrade = "N/A";
-
-                                        try
-                                        {
-                                            JSONObject jsonActivity = findAssignmentJSON(saveFile, a.id);
-                                            boolean changed = false;
-                                            if(jsonActivity != null)
-                                            {
-                                                if(a.earnedPoints != null)
-                                                {
-                                                    if(!a.earnedPoints.equals(jsonActivity.getString("earnedPoints")) || jsonActivity.getString("earnedPoints") == null)
-                                                    {
-                                                        changed = true;
-                                                    }
-                                                }
-                                                if(a.missing != jsonActivity.getBoolean("missing"))
-                                                {
-                                                    changed = true;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                changed = true;
-                                            }
-
-                                            if(changed)
-                                            {
-                                                updated.add(a);
-                                            }
-                                        } catch (JSONException e1)
-                                        {
-                                            e1.printStackTrace();
-                                        }
-                                        category.activities.add(a);
-                                    }
-                                }
-
-                                category.sort();
-
-                                t.addCategory(category);
-                            }
-                        }
-                        c.tasks.add(t);
-                    }
-                }
-
-                courses.add(c);
+                courses.add(new Course(e));
             }
 
         }
 
-        userInfo.courses = new ArrayList<Course>( );
-        userInfo.newAssignments = updated;
-
-        //alphabetically sort course list
-        for (int i=0;i < courses.size();++i)
-        {
-            if (userInfo.courses.size() == 0)
-            {
-                userInfo.courses.add( courses.get(i) );
-            }
-            else
-            {
-                int placement = -1;
-
-                for (int j=0;j < userInfo.courses.size();++j)
-                {
-                    if (courses.get(i).getCourseName().compareTo(userInfo.courses.get(j).getCourseName()) < 0 && placement == -1)
-                    {
-                        placement = j;
-                        break;
-                    }
-                }
-                if (placement != -1)
-                    userInfo.courses.add( placement, courses.get(i) );
-                else
-                    userInfo.courses.add( courses.get(i) );
-            }
-        }
+        userInfo.updateCourses(courses, updated);
 
         isLoggedIn = true;
         _districtCode = districtCode;
@@ -474,19 +216,19 @@ public class InfiniteCampusApi
     {
         JSONObject json = new JSONObject();
 
-        json.put("firstName", userInfo.firstName);
-        json.put("middleName", userInfo.middleName);
-        json.put("lastName", userInfo.lastName);
-        json.put("id", userInfo.personID);
-        json.put("number", userInfo.studentNumber);
-        json.put("security", userInfo.hasSecurityRole);
-        json.put("guardian", userInfo.isGuardian);
+        json.put("firstName", userInfo.getFirstName());
+        json.put("middleName", userInfo.getMiddleName());
+        json.put("lastName", userInfo.getLastName());
+        json.put("id", userInfo.getPersonID());
+        json.put("number", userInfo.getStudentNumber());
+        json.put("security", userInfo.isInSecurityRole());
+        json.put("guardian", userInfo.isGuardian());
         json.put("password", _password);
         json.put("username", _username);
         json.put("districtCode", _districtCode);
 
         JSONArray jsonCourses = new JSONArray();
-        List<Course> courses = userInfo.courses;
+        List<Course> courses = userInfo.getCourses();
         for(int i = 0; i < courses.size(); i++)
         {
             JSONObject jsonCourse = new JSONObject();
@@ -504,51 +246,51 @@ public class InfiniteCampusApi
                 JSONObject jsonTask = new JSONObject();
                 Task task = tasks.get(j);
 
-                jsonTask.put("name", task.name);
-                jsonTask.put("termName", task.termName);
-                jsonTask.put("percent", task.percentage);
-                jsonTask.put("earnedPoints", task.earnedPoints);
-                jsonTask.put("totalPoints", task.totalPoints);
-                jsonTask.put("weight", task.weight);
-                jsonTask.put("letterGrade", task.letterGrade);
+                jsonTask.put("name", task.getName());
+                jsonTask.put("termName", task.getTermName());
+                jsonTask.put("percent", task.getPercentage());
+                jsonTask.put("earnedPoints", task.getEarnedPoints());
+                jsonTask.put("totalPoints", task.getTotalPoints());
+                jsonTask.put("weight", task.getWeight());
+                jsonTask.put("letterGrade", task.getLetterGrade());
 
                 JSONArray jsonCategories = new JSONArray();
-                List<Category> categories = task.gradeCategories;
+                List<Category> categories = task.getCategories();
                 for(int k = 0; k < categories.size(); k++)
                 {
                     JSONObject jsonCategory = new JSONObject();
                     Category category = categories.get(k);
 
-                    jsonCategory.put("name", category.name);
-                    jsonCategory.put("percent", category.percentage);
-                    jsonCategory.put("earnedPoints", category.earnedPoints);
-                    jsonCategory.put("totalPoints", category.totalPoints);
-                    jsonCategory.put("weight", category.weight);
-                    jsonCategory.put("letterGrade", category.letterGrade);
+                    jsonCategory.put("name", category.getName());
+                    jsonCategory.put("percent", category.getPercentage());
+                    jsonCategory.put("earnedPoints", category.getEarnedPoints());
+                    jsonCategory.put("totalPoints", category.getTotalPoints());
+                    jsonCategory.put("weight", category.getWeight());
+                    jsonCategory.put("letterGrade", category.getLetterGrade());
 
                     JSONArray jsonActivities = new JSONArray();
-                    List<Activity> activities = category.activities;
+                    List<Activity> activities = category.getActivites();
                     for(int l = 0; l < activities.size(); l++)
                     {
                         JSONObject jsonActivity = new JSONObject();
                         Activity activity = activities.get(l);
 
-                        jsonActivity.put("name", activity.name);
-                        jsonActivity.put("percent", activity.percentage);
-                        if(activity.earnedPoints == null)
+                        jsonActivity.put("name", activity.getName());
+                        jsonActivity.put("percent", activity.getPercentage());
+                        if(activity.getEarnedPoints() == null)
                         {
                             jsonActivity.put("earnedPoints", "");
                         }
                         else
                         {
-                            jsonActivity.put("earnedPoints", activity.earnedPoints);
+                            jsonActivity.put("earnedPoints", activity.getEarnedPoints());
                         }
-                        jsonActivity.put("totalPoints", activity.totalPoints);
-                        jsonActivity.put("id", activity.id);
-                        jsonActivity.put("letterGrade", activity.letterGrade);
-                        jsonActivity.put("missing", activity.missing);
-                        jsonActivity.put("dueDate", activity.dueDate);
-                        jsonActivity.put("className", activity.className);
+                        jsonActivity.put("totalPoints", activity.getTotalPoints());
+                        jsonActivity.put("id", activity.getId());
+                        jsonActivity.put("letterGrade", activity.getLetterGrade());
+                        jsonActivity.put("missing", activity.isMissing());
+                        jsonActivity.put("dueDate", activity.getDueDate());
+                        jsonActivity.put("className", activity.getClassName());
 
                         jsonActivities.put(jsonActivity);
                     }
@@ -573,16 +315,16 @@ public class InfiniteCampusApi
         json.put("courses", jsonCourses);
 
         JSONArray jsonCalendars = new JSONArray();
-        List<Calendar> calendars = userInfo.calendars;
+        List<Calendar> calendars = userInfo.getCalendars();
         for(int i = 0; i < calendars.size(); i++)
         {
             JSONObject jsonCalendar = new JSONObject();
             Calendar calendar = calendars.get(i);
 
-            jsonCalendar.put("id", calendar.calendarID);
-            jsonCalendar.put("endYear", calendar.endYear);
-            jsonCalendar.put("name", calendar.name);
-            jsonCalendar.put("schoolId", calendar.schoolID);
+            jsonCalendar.put("id", calendar.getCalendarID());
+            jsonCalendar.put("endYear", calendar.getEndYear());
+            jsonCalendar.put("name", calendar.getName());
+            jsonCalendar.put("schoolId", calendar.getSchoolID());
 
             JSONArray jsonSchedules = new JSONArray();
             List<ScheduleStructure> schedules = calendar.schedules;
@@ -591,14 +333,14 @@ public class InfiniteCampusApi
                 JSONObject jsonSchedule = new JSONObject();
                 ScheduleStructure schedule = schedules.get(j);
 
-                jsonSchedule.put("active", schedule.active);
-                jsonSchedule.put("grade", schedule.grade);
-                jsonSchedule.put("id", schedule.id);
-                jsonSchedule.put("default", schedule.is_default);
-                jsonSchedule.put("label", schedule.label);
-                jsonSchedule.put("name", schedule.name);
-                jsonSchedule.put("primary", schedule.primary);
-                jsonSchedule.put("startDate", schedule.startDate);
+                jsonSchedule.put("active", schedule.isActive());
+                jsonSchedule.put("grade", schedule.getGrade());
+                jsonSchedule.put("id", schedule.getId());
+                jsonSchedule.put("default", schedule.isDefault());
+                jsonSchedule.put("label", schedule.getLabel());
+                jsonSchedule.put("name", schedule.getName());
+                jsonSchedule.put("primary", schedule.getPrimary());
+                jsonSchedule.put("startDate", schedule.getStartDate());
 
                 jsonSchedules.put(jsonSchedule);
             }
@@ -637,7 +379,7 @@ public class InfiniteCampusApi
             online = ni.isConnected();
         }
 
-        File saveFile = new File(context.getFilesDir(), "save.data");
+        saveFile = new File(context.getFilesDir(), "save.data");
 
         SharedPreferences settings = context.getSharedPreferences("MaterialCampus", 0);
         if(online && (!settings.getBoolean("dontSync", false) || ignoreDontSync))
@@ -673,7 +415,6 @@ public class InfiniteCampusApi
 
     public void refresh()
     {
-        File saveFile = new File(context.getFilesDir(), "save.data");
         try
         {
             loadData(saveFile);
@@ -709,12 +450,12 @@ public class InfiniteCampusApi
         List<Activity> assignments = new ArrayList<>();
         for(int i = 0; i < course.tasks.size(); i++)
         {
-            for(int j = 0; j < course.tasks.get(i).gradeCategories.size(); j++)
+            for(int j = 0; j < course.tasks.get(i).getCategories().size(); j++)
             {
-                for(int k = 0; k < course.tasks.get(i).gradeCategories.get(j).activities.size(); k++)
+                for(int k = 0; k < course.tasks.get(i).getCategories().get(j).getActivites().size(); k++)
                 {
-                    Activity activity = course.tasks.get(i).gradeCategories.get(j).activities.get(k);
-                    if(activity.name.toLowerCase().contains(search.toLowerCase()))
+                    Activity activity = course.tasks.get(i).getCategories().get(j).getActivites().get(k);
+                    if(activity.getName().toLowerCase().contains(search.toLowerCase()))
                     {
                         assignments.add(activity);
                     }
@@ -731,7 +472,7 @@ public class InfiniteCampusApi
         for(int i = 0; i < assignments.size(); i++)
         {
             Activity activity = assignments.get(i);
-            if(activity.name.toLowerCase().contains(search.toLowerCase()))
+            if(activity.getName().toLowerCase().contains(search.toLowerCase()))
             {
                 results.add(activity);
             }
@@ -746,7 +487,7 @@ public class InfiniteCampusApi
         for(int i = 0; i < assignments.size(); i++)
         {
             Activity activity = assignments.get(i);
-            if(activity.missing)
+            if(activity.isMissing())
             {
                 results.add(activity);
             }
@@ -815,20 +556,35 @@ public class InfiniteCampusApi
     public List<Activity> getAllAssignments()
     {
         List<Activity> assignments = new ArrayList<>();
-        for(int l = 0; l < userInfo.courses.size(); l++)
+        for(int l = 0; l < userInfo.getCourses().size(); l++)
         {
-            for(int i = 0; i < userInfo.courses.get(l).tasks.size(); i++)
+            for(int i = 0; i < userInfo.getCourses().get(l).tasks.size(); i++)
             {
-                for(int j = 0; j < userInfo.courses.get(l).tasks.get(i).gradeCategories.size(); j++)
+                for(int j = 0; j < userInfo.getCourses().get(l).tasks.get(i).getCategories().size(); j++)
                 {
-                    for(int k = 0; k < userInfo.courses.get(l).tasks.get(i).gradeCategories.get(j).activities.size(); k++)
+                    for(int k = 0; k < userInfo.getCourses().get(l).tasks.get(i).getCategories().get(j).getActivites().size(); k++)
                     {
-                        Activity activity = userInfo.courses.get(l).tasks.get(i).gradeCategories.get(j).activities.get(k);
+                        Activity activity = userInfo.getCourses().get(l).tasks.get(i).getCategories().get(j).getActivites().get(k);
                         assignments.add(activity);
                     }
                 }
             }
         }
         return assignments;
+    }
+
+    public Student getUserInfo()
+    {
+        return userInfo;
+    }
+
+    public File getSaveFile()
+    {
+        return saveFile;
+    }
+
+    public List<Activity> getUpdated()
+    {
+        return updated;
     }
 }

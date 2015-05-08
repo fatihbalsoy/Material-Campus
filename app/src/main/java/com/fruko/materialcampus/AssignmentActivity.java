@@ -35,32 +35,32 @@ public class AssignmentActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_assignment);
-        course = InfiniteCampusApi.getInstance().userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0));
+        course = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0));
         int task = getIntent().getIntExtra(ClassGradesActivity.SELECTED_TASK_ID, 0);
-        for(int i = 0; i < course.tasks.get(task).gradeCategories.size(); i++)
+        for(int i = 0; i < course.tasks.get(task).getCategories().size(); i++)
         {
             if(i == getIntent().getIntExtra(ClassGradesActivity.SELECTED_CATEGORY_ID, 0))
             {
-                for (int j = 0; j < course.tasks.get(task).gradeCategories.get(i).activities.size(); j++)
+                for (int j = 0; j < course.tasks.get(task).getCategories().get(i).getActivites().size(); j++)
                 {
                     if (j == getIntent().getIntExtra(ClassGradesActivity.SELECTED_ASSIGNMENT_ID, 0))
                     {
-                        assignment = InfiniteCampusApi.getInstance().userInfo.courses.get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0)).tasks.get(task).gradeCategories.get(i).activities.get(j);
+                        assignment = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0)).tasks.get(task).getCategories().get(i).getActivites().get(j);
                     }
                 }
             }
         }
-        setTitle(assignment.name + " - " +  assignment.percentage + "%");
+        setTitle(assignment.getName() + " - " +  assignment.getPercentage() + "%");
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         List<String[]> dataPoints = new ArrayList<>();
-        dataPoints.add(new String[]{"Title", assignment.name});
-        dataPoints.add(new String[]{"Due Date", assignment.dueDate});
-        dataPoints.add(new String[]{"Letter Grade", assignment.letterGrade});
-        dataPoints.add(new String[]{"Percent", Float.toString(assignment.percentage) + "%"});
-        dataPoints.add(new String[]{"Points Earned", assignment.earnedPoints});
-        dataPoints.add(new String[]{"Points Possible", Float.toString(assignment.totalPoints)});
+        dataPoints.add(new String[]{"Title", assignment.getName()});
+        dataPoints.add(new String[]{"Due Date", assignment.getDueDate()});
+        dataPoints.add(new String[]{"Letter Grade", assignment.getLetterGrade()});
+        dataPoints.add(new String[]{"Percent", Float.toString(assignment.getPercentage()) + "%"});
+        dataPoints.add(new String[]{"Points Earned", assignment.getEarnedPoints()});
+        dataPoints.add(new String[]{"Points Possible", Float.toString(assignment.getTotalPoints())});
 
         LinearLayout list = (LinearLayout) findViewById(R.id.datapoints);
         for(int i = 1; i < dataPoints.size(); i++)

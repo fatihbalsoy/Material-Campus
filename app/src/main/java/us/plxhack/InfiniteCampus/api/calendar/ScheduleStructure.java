@@ -1,5 +1,9 @@
 package us.plxhack.InfiniteCampus.api.calendar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -8,25 +12,45 @@ import nu.xom.Element;
 
 public class ScheduleStructure
 {
-	public String id;
-	public String name;
-	public String label;
-	public String grade;
-	public boolean active;
-	public String primary;
-	public boolean is_default;
-	public Date startDate;
-	public ScheduleStructure(Element sceduleElement)
+	private String id;
+	private String name;
+	private String label;
+	private String grade;
+	private boolean active;
+	private String primary;
+	private boolean is_default;
+	private Date startDate;
+
+	public ScheduleStructure(JSONObject jsonSchedule) throws JSONException
 	{
-		id = sceduleElement.getAttributeValue("structureID");
-		name = sceduleElement.getAttributeValue("structureName");
-		label = sceduleElement.getAttributeValue("label");
-		grade = sceduleElement.getAttributeValue("grade");
-		active = sceduleElement.getAttributeValue("active").equalsIgnoreCase("true");
-		primary = sceduleElement.getAttributeValue("primary");
-        if(sceduleElement.getAttributeValue("default") != null)
+		name = jsonSchedule.getString("name");
+
+		active = jsonSchedule.getBoolean("active");
+		grade = jsonSchedule.getString("grade");
+		id = jsonSchedule.getString("id");
+		is_default = jsonSchedule.getBoolean("default");
+		label = jsonSchedule.getString("label");
+		primary = jsonSchedule.getString("primary");
+		try
+		{
+			startDate = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH).parse(jsonSchedule.getString("startDate"));
+		} catch (ParseException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public ScheduleStructure(Element scheduleElement)
+	{
+		id = scheduleElement.getAttributeValue("structureID");
+		name = scheduleElement.getAttributeValue("structureName");
+		label = scheduleElement.getAttributeValue("label");
+		grade = scheduleElement.getAttributeValue("grade");
+		active = scheduleElement.getAttributeValue("active").equalsIgnoreCase("true");
+		primary = scheduleElement.getAttributeValue("primary");
+        if(scheduleElement.getAttributeValue("default") != null)
         {
-            is_default = sceduleElement.getAttributeValue("default").equalsIgnoreCase("true");
+            is_default = scheduleElement.getAttributeValue("default").equalsIgnoreCase("true");
         }
         else
         {
@@ -35,7 +59,7 @@ public class ScheduleStructure
 
 		try
 		{
-			startDate = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH).parse(sceduleElement.getAttributeValue("startDate"));
+			startDate = new SimpleDateFormat("MM/dd/yy", Locale.ENGLISH).parse(scheduleElement.getAttributeValue("startDate"));
 		}
 		catch(Exception e)
 		{
@@ -51,5 +75,38 @@ public class ScheduleStructure
 	public String getInfoString()
 	{
 		return "Information for Schedule \'" + name  + "\' titled \'" + label + "\':\nGrade: " + grade + "\nID: " + id + "\nIs Active? " + active + "\nPrimary: " + primary + "\nIs Default? " + is_default + "\nEnding Date: " + startDate.toString();
+	}
+
+	public String getId()
+	{
+		return id;
+	}
+	public String getName()
+	{
+		return name;
+	}
+	public String getLabel()
+	{
+		return label;
+	}
+	public String getGrade()
+	{
+		return grade;
+	}
+	public String getPrimary()
+	{
+		return primary;
+	}
+	public Date getStartDate()
+	{
+		return startDate;
+	}
+	public boolean isActive()
+	{
+		return active;
+	}
+	public boolean isDefault()
+	{
+		return is_default;
 	}
 }

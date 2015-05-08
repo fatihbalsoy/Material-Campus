@@ -44,7 +44,7 @@ public class ClassesActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_classes);
 
-        setTitle(InfiniteCampusApi.getInstance().userInfo.firstName + ' ' + InfiniteCampusApi.getInstance().userInfo.lastName );
+        setTitle(InfiniteCampusApi.getInstance().getUserInfo().getFirstName() + ' ' + InfiniteCampusApi.getInstance().getUserInfo().getLastName() );
         getCourseList();
 
         final SwipeRefreshLayout swipeView = (SwipeRefreshLayout)findViewById( R.id.class_swipe );
@@ -62,11 +62,10 @@ public class ClassesActivity extends ActionBarActivity
     private void getCourseList()
     {
         final ArrayList<String[]> classNameArray = new ArrayList<>();
-
-        for (int i=0;i < InfiniteCampusApi.getInstance().userInfo.courses.size(); ++i)
+        for (int i=0;i < InfiniteCampusApi.getInstance().getUserInfo().getCourses().size(); ++i)
         {
-            Course course = InfiniteCampusApi.getInstance().userInfo.courses.get(i);
-            String[] newArray = {course.getCourseName(), new DecimalFormat("#.00").format(course.getPercent()) + "%", course.getTeacherName(), course.letterGrade };
+            Course course = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(i);
+            String[] newArray = {course.getCourseName(), new DecimalFormat("#.00").format(course.getPercent()) + "%", course.getTeacherName(), course.getLetterGrade() };
             classNameArray.add(newArray);
         }
 
