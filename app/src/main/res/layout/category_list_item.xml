@@ -9,7 +9,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Category"
         android:padding="16dp"
-        android:translationZ="6dp"
+        android:translationZ="4dp"
         android:id="@+id/category" />
 
     <LinearLayout
