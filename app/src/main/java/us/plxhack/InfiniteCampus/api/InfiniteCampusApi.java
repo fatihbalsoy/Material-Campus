@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.fruko.materialcampus.AssignmentActivity;
+import com.fruko.materialcampus.MCActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,25 +15,17 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.Buffer;
-import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
-import nu.xom.Elements;
-import nu.xom.Node;
 import nu.xom.ParsingException;
 import us.plxhack.InfiniteCampus.api.calendar.Calendar;
 import us.plxhack.InfiniteCampus.api.calendar.ScheduleStructure;
@@ -252,7 +244,14 @@ public class InfiniteCampusApi
                 jsonTask.put("earnedPoints", task.getEarnedPoints());
                 jsonTask.put("totalPoints", task.getTotalPoints());
                 jsonTask.put("weight", task.getWeight());
-                jsonTask.put("letterGrade", task.getLetterGrade());
+                if(task.getLetterGrade() == null)
+                {
+                    jsonTask.put("letterGrade", "N/A");
+                }
+                else
+                {
+                    jsonTask.put("letterGrade", task.getLetterGrade());
+                }
 
                 JSONArray jsonCategories = new JSONArray();
                 List<Category> categories = task.getCategories();
@@ -266,7 +265,14 @@ public class InfiniteCampusApi
                     jsonCategory.put("earnedPoints", category.getEarnedPoints());
                     jsonCategory.put("totalPoints", category.getTotalPoints());
                     jsonCategory.put("weight", category.getWeight());
-                    jsonCategory.put("letterGrade", category.getLetterGrade());
+                    if(category.getLetterGrade() == null)
+                    {
+                        jsonCategory.put("letterGrade", "N/A");
+                    }
+                    else
+                    {
+                        jsonCategory.put("letterGrade", category.getLetterGrade());
+                    }
 
                     JSONArray jsonActivities = new JSONArray();
                     List<Activity> activities = category.getActivites();
@@ -383,6 +389,8 @@ public class InfiniteCampusApi
         saveFile = new File(context.getFilesDir(), "save.data");
 
         SharedPreferences settings = context.getSharedPreferences("MaterialCampus", 0);
+        System.out.println("Dont Sync: " + settings.getBoolean("dontSync", false));
+        System.out.println("Ignore Dont Sync: " + ignoreDontSync);
         if(online && (!settings.getBoolean("dontSync", false) || ignoreDontSync))
         {
             System.out.println("Loading data from internet");

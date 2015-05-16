@@ -4,16 +4,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -145,7 +140,7 @@ public class AccountListActivity extends ActionBarActivity
             baseView.setVisibility( View.VISIBLE );
 
         if (changeActivityWhenVisible)
-            startActivity(ClassesActivity.class);
+            startActivity(MCActivity.class);
     }
 
     protected void onStart()
@@ -257,7 +252,7 @@ public class AccountListActivity extends ActionBarActivity
             if (success)
             {
                 if (isVisible)
-                    startActivity(ClassesActivity.class);
+                    startActivity(MCActivity.class);
                 else
                     changeActivityWhenVisible = true;
             }

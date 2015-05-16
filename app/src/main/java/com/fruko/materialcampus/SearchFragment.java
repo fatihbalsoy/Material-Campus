@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -25,7 +26,7 @@ import us.plxhack.InfiniteCampus.api.course.Course;
 /**
  * Created by mail929 on 5/6/15.
  */
-public class SearchActivity extends ActionBarActivity
+public class SearchFragment extends Fragment
 {
     public final static String SELECTED_COURSE_ID = "com.fruko.materialcampus.SELECTED_COURSE_ID";
     public final static String SELECTED_ASSIGNMENT_ID = "com.fruko.materialcampus.SELECTED_ASSIGNMENT_ID";
@@ -38,27 +39,27 @@ public class SearchActivity extends ActionBarActivity
     boolean allClasses;
     List<Activity> results;
 
-    protected void onCreate(Bundle savedInstanceState)
+    private View view;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
+        view = inflater.inflate(R.layout.activity_search, container, false);
 
-        search = (EditText) findViewById(R.id.search);
-        list = (ListView) findViewById(R.id.results);
+        course = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(getArguments().getInt(ClassGradesFragment.SELECTED_COURSE_ID, 0));
+        allClasses = getArguments().getBoolean(ClassesFragment.ALL_CLASSES_ID, false);
 
-        course = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(getIntent().getIntExtra(ClassGradesActivity.SELECTED_COURSE_ID, 0));
-        allClasses = getIntent().getBooleanExtra(ClassesActivity.ALL_CLASSES_ID, false);
+        search = (EditText) view.findViewById(R.id.search);
+        list = (ListView) view.findViewById(R.id.results);
 
         if(allClasses)
         {
-            setTitle("Search: All Classes");
+            getActivity().setTitle("Search: All Classes");
         }
         else
         {
-            setTitle("Search: " + course.getCourseName());
+            getActivity().setTitle("Search: " + course.getCourseName());
         }
-
-        final Context c = this;
 
         search.addTextChangedListener(new TextWatcher()
         {
@@ -75,23 +76,22 @@ public class SearchActivity extends ActionBarActivity
             @Override
             public void afterTextChanged(Editable s)
             {
-                if(allClasses)
+                if (allClasses)
                 {
                     results = InfiniteCampusApi.getInstance().searchAllClasses(search.getText().toString());
-                }
-                else
+                } else
                 {
                     results = InfiniteCampusApi.getInstance().searchClass(course, search.getText().toString());
                 }
 
-                list.setAdapter(new ArrayAdapter<Activity>(c, R.layout.assignment_search_item, R.id.name, results)
+                list.setAdapter(new ArrayAdapter<Activity>(getActivity(), R.layout.assignment_search_item, R.id.name, results)
                 {
                     public View getView(final int position, View convertView, ViewGroup parent)
                     {
                         View view;
                         if (convertView == null)
                         {
-                            LayoutInflater infl = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                            LayoutInflater infl = (LayoutInflater) getActivity().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
                             convertView = infl.inflate(R.layout.assignment_search_item, parent, false);
                         }
                         view = super.getView(position, convertView, parent);
@@ -104,8 +104,7 @@ public class SearchActivity extends ActionBarActivity
                         {
                             percent = "Missing";
                             grade.setTextColor(Color.RED);
-                        }
-                        else if (results.get(position).getLetterGrade().equals("N/A"))
+                        } else if (results.get(position).getLetterGrade().equals("N/A"))
                             percent = "Not Graded";
                         else if (results.get(position).getPercentage() == 0)
                             percent = "0.00%";
@@ -114,31 +113,32 @@ public class SearchActivity extends ActionBarActivity
 
                         grade.setText(percent);
 
-                        if(allClasses)
+                        if (allClasses)
                         {
                             ((TextView) view.findViewById(R.id.className)).setText(results.get(position).getClassName());
-                        }
-                        else
+                        } else
                         {
 
                             (view.findViewById(R.id.className)).setVisibility(View.GONE);
                         }
 
-                        view.setOnClickListener(new View.OnClickListener() {
+                        view.setOnClickListener(new View.OnClickListener()
+                        {
                             @Override
-                            public void onClick(View view) {
-                                Intent intent = new Intent(c, AssignmentActivity.class);
+                            public void onClick(View view)
+                            {
+                                Intent intent = new Intent(getActivity(), AssignmentFragment.class);
                                 List<Course> courses = InfiniteCampusApi.getInstance().getUserInfo().getCourses();
-                                for(int i = 0; i < courses.size(); i++)
+                                for (int i = 0; i < courses.size(); i++)
                                 {
-                                    for(int j = 0; j < courses.get(i).tasks.size(); j++)
+                                    for (int j = 0; j < courses.get(i).tasks.size(); j++)
                                     {
-                                        for(int k = 0; k < courses.get(i).tasks.get(j).getCategories().size(); k++)
+                                        for (int k = 0; k < courses.get(i).tasks.get(j).getCategories().size(); k++)
                                         {
-                                            for(int l = 0; l < courses.get(i).tasks.get(j).getCategories().get(k).getActivites().size(); l++)
+                                            for (int l = 0; l < courses.get(i).tasks.get(j).getCategories().get(k).getActivites().size(); l++)
                                             {
                                                 Activity activity = courses.get(i).tasks.get(j).getCategories().get(k).getActivites().get(l);
-                                                if(activity.getId().equals(results.get(position).getId()))
+                                                if (activity.getId().equals(results.get(position).getId()))
                                                 {
                                                     intent.putExtra(SELECTED_COURSE_ID, i);
                                                     intent.putExtra(SELECTED_CATEGORY_ID, k);
@@ -157,5 +157,6 @@ public class SearchActivity extends ActionBarActivity
                 });
             }
         });
+        return view;
     }
 }

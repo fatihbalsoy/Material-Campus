@@ -2,9 +2,14 @@ package com.fruko.materialcampus;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -16,36 +21,38 @@ import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 /**
  * Created by mail929 on 3/22/15.
  */
-public class SettingsActivity extends ActionBarActivity
+public class SettingsFragment extends Fragment
 {
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+    private View view;
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        SharedPreferences settings = getSharedPreferences("MaterialCampus", 0);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
+        view = inflater.inflate(R.layout.activity_settings, container, false);
+
+        SharedPreferences settings = getActivity().getSharedPreferences("MaterialCampus", 0);
         final SharedPreferences.Editor editor = settings.edit();
 
-        LinearLayout scroll = (LinearLayout) findViewById(R.id.scroll);
+        LinearLayout scroll = (LinearLayout) view.findViewById(R.id.scroll);
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        View gradeHighlight = getLayoutInflater().inflate(R.layout.checkbox_setting_item, null);
+        View gradeHighlight = getActivity().getLayoutInflater().inflate(R.layout.checkbox_setting_item, null);
         TextView highlightLabel = (TextView) gradeHighlight.findViewById(R.id.label);
         final CheckBox highlightCheck = (CheckBox) gradeHighlight.findViewById(R.id.checkBox);
         highlightLabel.setText("Highlight Grades with Color?");
         highlightCheck.setChecked(settings.getBoolean("highlightGrade", false));
-        highlightCheck.setOnClickListener(new View.OnClickListener() {
+        highlightCheck.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 editor.putBoolean("highlightGrade", highlightCheck.isChecked());
                 editor.commit();
             }
         });
         scroll.addView(gradeHighlight);
 
-        View dontSync = getLayoutInflater().inflate(R.layout.checkbox_setting_item, null);
+        View dontSync = getActivity().getLayoutInflater().inflate(R.layout.checkbox_setting_item, null);
         TextView dontSyncLabel = (TextView) dontSync.findViewById(R.id.label);
         final CheckBox dontSyncCheck = (CheckBox) dontSync.findViewById(R.id.checkBox);
         dontSyncLabel.setText("Dont sync automatically?");
@@ -60,5 +67,6 @@ public class SettingsActivity extends ActionBarActivity
             }
         });
         scroll.addView(dontSync);
+        return view;
     }
 }

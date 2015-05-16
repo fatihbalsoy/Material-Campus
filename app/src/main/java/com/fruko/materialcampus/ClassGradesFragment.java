@@ -1,24 +1,23 @@
 package com.fruko.materialcampus;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -32,7 +31,7 @@ import us.plxhack.InfiniteCampus.api.course.Category;
 import us.plxhack.InfiniteCampus.api.course.Course;
 import us.plxhack.InfiniteCampus.api.course.Task;
 
-public class ClassGradesActivity extends ActionBarActivity
+public class ClassGradesFragment extends Fragment
 {
     private ListView gradesList;
 
@@ -45,15 +44,17 @@ public class ClassGradesActivity extends ActionBarActivity
     private Course course;
     private int position;
 
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_classgrades);
-        course = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
-        position = getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0);
-        setTitle(course.getCourseName() + " - " + new DecimalFormat("#.00").format(course.getPercent()) + "%");
+    private View view;
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
+        view = inflater.inflate(R.layout.activity_classgrades, container, false);
+
+        position = getArguments().getInt(ClassesFragment.SELECTED_COURSE_ID, 0);
+        course = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(position);
+
+        getActivity().setTitle(course.getCourseName() + " - " + new DecimalFormat("#.00").format(course.getPercent()) + "%");
 
         final List<List<String[]>> gradesArray = new ArrayList<>();
 
@@ -96,23 +97,21 @@ public class ClassGradesActivity extends ActionBarActivity
             }
         }
 
-        gradesList = (ListView)findViewById( R.id.class_grades );
+        gradesList = (ListView) view.findViewById(R.id.class_grades);
 
-        final Context c = this;
-
-        gradesList.setAdapter(new ArrayAdapter<List<String[]>>(this, R.layout.category_list_item, R.id.category, gradesArray)
+        gradesList.setAdapter(new ArrayAdapter<List<String[]>>(getActivity(), R.layout.category_list_item, R.id.category, gradesArray)
         {
             public View getView(final int position, View convertView, ViewGroup parent)
             {
                 View view;
                 if (convertView == null)
                 {
-                    LayoutInflater infl = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                    LayoutInflater infl = (LayoutInflater) getActivity().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
                     convertView = infl.inflate(R.layout.category_list_item, parent, false);
                 }
                 view = super.getView(position, convertView, parent);
 
-                SharedPreferences settings = getSharedPreferences("MaterialCampus", 0);
+                SharedPreferences settings = getActivity().getSharedPreferences("MaterialCampus", 0);
                 final List<String[]> assignments = gradesArray.get(position);
 
                 final LinearLayout list = (LinearLayout) view.findViewById(R.id.assignments);
@@ -126,11 +125,10 @@ public class ClassGradesActivity extends ActionBarActivity
                     @Override
                     public void onClick(View v)
                     {
-                        if(list.getVisibility() == View.GONE)
+                        if (list.getVisibility() == View.GONE)
                         {
                             list.setVisibility(View.VISIBLE);
-                        }
-                        else
+                        } else
                         {
                             list.setVisibility(View.GONE);
                         }
@@ -138,18 +136,19 @@ public class ClassGradesActivity extends ActionBarActivity
                 });
 
                 list.removeAllViews();
-                for(int i = 1; i < assignments.size(); i++)
+                for (int i = 1; i < assignments.size(); i++)
                 {
-                    View child = getLayoutInflater().inflate(R.layout.assignment_list_item, null);
+                    View child = getActivity().getLayoutInflater().inflate(R.layout.assignment_list_item, null);
                     TextView assignName = (TextView) child.findViewById(R.id.name);
                     assignName.setText(assignments.get(i)[0]);
                     TextView grade = (TextView) child.findViewById(R.id.grade);
                     grade.setText(assignments.get(i)[1]);
 
 
-                    if(settings.getBoolean("highlightGrade", false))
+                    if (settings.getBoolean("highlightGrade", false))
                     {
-                        switch(assignments.get(i)[2]) {
+                        switch (assignments.get(i)[2])
+                        {
                             case "A":
                                 grade.setBackgroundColor(Color.GREEN);
                                 break;
@@ -167,19 +166,27 @@ public class ClassGradesActivity extends ActionBarActivity
                                 break;
                         }
                     }
-                    if(grade.getText().toString().equals("Missing"))
+                    if (grade.getText().toString().equals("Missing"))
                         grade.setTextColor(Color.RED);
 
-                    final int a = i-1;
-                    child.setOnClickListener(new View.OnClickListener() {
+                    final int a = i - 1;
+                    child.setOnClickListener(new View.OnClickListener()
+                    {
                         @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(c, AssignmentActivity.class);
-                            intent.putExtra(SELECTED_COURSE_ID, getIntent().getIntExtra(ClassesActivity.SELECTED_COURSE_ID, 0));
-                            intent.putExtra(SELECTED_CATEGORY_ID, Integer.parseInt(assignments.get(a+1)[4]));
-                            intent.putExtra(SELECTED_ASSIGNMENT_ID, a);
-                            intent.putExtra(SELECTED_TASK_ID, Integer.parseInt(assignments.get(a+1)[3]));
-                            startActivity(intent);
+                        public void onClick(View view)
+                        {
+                            Fragment fragment = new AssignmentFragment();
+                            Bundle args = new Bundle();
+                            args.putInt(SELECTED_COURSE_ID, getArguments().getInt(ClassesFragment.SELECTED_COURSE_ID, 0));
+                            args.putInt(SELECTED_CATEGORY_ID, Integer.parseInt(assignments.get(a + 1)[4]));
+                            args.putInt(SELECTED_ASSIGNMENT_ID, a);
+                            args.putInt(SELECTED_TASK_ID, Integer.parseInt(assignments.get(a + 1)[3]));
+                            fragment.setArguments(args);
+
+                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                            transaction.replace(R.id.content_frame, fragment);
+                            transaction.addToBackStack(null);
+                            transaction.commit();
                         }
                     });
                     list.addView(child);
@@ -188,45 +195,20 @@ public class ClassGradesActivity extends ActionBarActivity
                 return view;
             }
         });
-
+        return view;
     }
-
-    protected void onStart()
-    {
-        super.onStart();
-    }
-
-    protected void onRestart()
-    {
-        super.onRestart();
-    }
-
-    protected void onResume()
-    {
-        super.onResume();
-    }
-
-    protected void onPause()
-    {
-        super.onPause();
-    }
-
-    protected void onStop()
-    {
-        super.onStop();
-    }
-
-    protected void onDestroy()
-    {
-        super.onDestroy();
-    }
-
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
+    public void onCreate(Bundle savedInstanceState)
     {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
+        inflater.inflate(R.menu.menu, menu);
     }
 
     @Override
@@ -234,36 +216,18 @@ public class ClassGradesActivity extends ActionBarActivity
     {
         int id = item.getItemId();
 
-        if (id == R.id.accounts)
+        if (id == R.id.search)
         {
-            Intent go = new Intent(this, AccountListActivity.class);
-            this.startActivity(go);
-            return true;
-        }
-        else if (id == R.id.settings)
-        {
-            Intent go = new Intent(this, SettingsActivity.class);
-            this.startActivity(go);
-            return true;
-        }
-        else if (id == R.id.recent)
-        {
-            Intent go = new Intent(this, RecentGradesActivity.class);
-            this.startActivity(go);
-            return true;
-        }
-        else if (id == R.id.missing)
-        {
-            Intent go = new Intent(this, MissingActivity.class);
-            this.startActivity(go);
-            return true;
-        }
-        else if (id == R.id.search)
-        {
-            Intent go = new Intent(this, SearchActivity.class);
-            go.putExtra(SELECTED_COURSE_ID, position);
-            go.putExtra(ALL_CLASSES_ID, false);
-            this.startActivity(go);
+            Fragment fragment = new SearchFragment();
+            Bundle args = new Bundle();
+            args.putInt(SELECTED_COURSE_ID, position);
+            args.putBoolean(ALL_CLASSES_ID, false);
+            fragment.setArguments(args);
+
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.content_frame, fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
             return true;
         }
         return super.onOptionsItemSelected(item);

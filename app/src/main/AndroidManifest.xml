@@ -25,6 +25,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".MCActivity"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
             android:name=".AccountLoginActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustResize|stateVisible" >
@@ -33,41 +38,6 @@
             android:name=".LoginActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustResize|stateVisible" >
-        </activity>
-        <activity
-            android:name=".ClassesActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="stateHidden" >
-        </activity>
-        <activity
-            android:name=".ClassGradesActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="stateHidden" >
-        </activity>
-        <activity
-            android:name=".AssignmentActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="stateHidden" >
-        </activity>
-        <activity
-            android:name=".RecentGradesActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
-        </activity>
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="stateHidden" >
-        </activity>
-        <activity
-            android:name=".SearchActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="stateHidden" >
-        </activity>
-        <activity
-            android:name=".MissingActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="stateHidden" >
         </activity>
         <service android:name=".AccountService">
             <intent-filter>

@@ -1,27 +1,24 @@
 package com.fruko.materialcampus;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.IntentCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -31,7 +28,7 @@ import java.util.ArrayList;
 import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 import us.plxhack.InfiniteCampus.api.course.Course;
 
-public class ClassesActivity extends ActionBarActivity
+public class ClassesFragment extends Fragment
 {
     public final static String SELECTED_COURSE_ID = "com.fruko.materialcampus.SELECTED_COURSE_ID";
     public final static String ALL_CLASSES_ID = "com.fruko.materialcampus.ALL_CLASSES_ID";
@@ -39,24 +36,27 @@ public class ClassesActivity extends ActionBarActivity
     private ListView classList;
     private boolean canViewGrades = true;
 
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_classes);
+    private View view;
 
-        setTitle(InfiniteCampusApi.getInstance().getUserInfo().getFirstName() + ' ' + InfiniteCampusApi.getInstance().getUserInfo().getLastName() );
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.activity_classes, container, false);
+
+        getActivity().setTitle(InfiniteCampusApi.getInstance().getUserInfo().getFirstName() + ' ' + InfiniteCampusApi.getInstance().getUserInfo().getLastName());
         getCourseList();
 
-        final SwipeRefreshLayout swipeView = (SwipeRefreshLayout)findViewById( R.id.class_swipe );
-        swipeView.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener()
+        final SwipeRefreshLayout swipeView = (SwipeRefreshLayout) view.findViewById( R.id.class_swipe );
+        swipeView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
         {
             @Override
             public void onRefresh()
             {
                 System.out.println("Refreshing");
-                new UserRefreshTask( swipeView ).execute();
+                new UserRefreshTask(swipeView).execute();
             }
         });
+
+        return view;
     }
 
     private void getCourseList()
@@ -69,18 +69,16 @@ public class ClassesActivity extends ActionBarActivity
             classNameArray.add(newArray);
         }
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        classList = (ListView) view.findViewById( R.id.class_list );
 
-        classList = (ListView)findViewById( R.id.class_list );
-
-        classList.setAdapter(new ArrayAdapter<String[]>(this, R.layout.class_list_item, R.id.name, classNameArray)
+        classList.setAdapter(new ArrayAdapter<String[]>(getActivity(), R.layout.class_list_item, R.id.name, classNameArray)
         {
             public View getView(final int position, View convertView, ViewGroup parent)
             {
                 View view;
                 if (convertView == null)
                 {
-                    LayoutInflater infl = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                    LayoutInflater infl = (LayoutInflater) getActivity().getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
                     convertView = infl.inflate(R.layout.class_list_item, parent, false);
                 }
                 view = super.getView(position, convertView, parent);
@@ -95,7 +93,7 @@ public class ClassesActivity extends ActionBarActivity
                 grade.setText(classNameArray.get(position)[3]);
 
 
-                SharedPreferences settings = getSharedPreferences("MaterialCampus", 0);
+                SharedPreferences settings = getActivity().getSharedPreferences("MaterialCampus", 0);
 
                 if (settings.getBoolean("highlightGrade", false))
                 {
@@ -125,7 +123,6 @@ public class ClassesActivity extends ActionBarActivity
             }
         });
 
-        final Activity a = this;
 
         classList.setOnItemClickListener( new AdapterView.OnItemClickListener() {
             @Override
@@ -134,74 +131,56 @@ public class ClassesActivity extends ActionBarActivity
                 if (!canViewGrades)
                     return;
 
-                Intent intent = new Intent( a, ClassGradesActivity.class );
-                intent.putExtra( SELECTED_COURSE_ID, position );
-                startActivity( intent );
+                Fragment fragment = new ClassGradesFragment();
+            Bundle args = new Bundle();
+            args.putInt(SELECTED_COURSE_ID, position);
+            fragment.setArguments(args);
+
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.content_frame, fragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
             }
         });
 
         canViewGrades = true;
     }
 
-    protected void onStart()
-    {
-        super.onStart();
-    }
-
-    protected void onRestart()
-    {
-        super.onRestart();
-    }
-
-    protected void onResume()
-    {
-        super.onResume();
-    }
-
-    protected void onPause()
-    {
-        super.onPause();
-    }
-
-    protected void onStop()
-    {
-        super.onStop();
-    }
-
-    protected void onDestroy()
-    {
-        super.onDestroy();
-    }
-
     private class UserRefreshTask extends AsyncTask<Void, Void, Boolean>
     {
         private SwipeRefreshLayout swipeLayout;
 
-        public UserRefreshTask( SwipeRefreshLayout swipelayout )
+        public UserRefreshTask(SwipeRefreshLayout swipelayout)
         {
             swipeLayout = swipelayout;
         }
 
         @Override
-        protected Boolean doInBackground( Void... params)
+        protected Boolean doInBackground(Void... params)
         {
             canViewGrades = false;
             return InfiniteCampusApi.getInstance().relogin();
         }
 
-        protected void onPostExecute( Boolean result )
+        protected void onPostExecute(Boolean result)
         {
             getCourseList();
-            swipeLayout.setRefreshing( false );
+            swipeLayout.setRefreshing(false);
             canViewGrades = true;
         }
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
+    public void onCreate(Bundle savedInstanceState)
     {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
+        inflater.inflate(R.menu.menu, menu);
     }
 
     @Override
@@ -209,37 +188,18 @@ public class ClassesActivity extends ActionBarActivity
     {
         int id = item.getItemId();
 
-        if (id == R.id.accounts)
+        if (id == R.id.search)
         {
-            Intent go = new Intent(this, AccountListActivity.class);
-            go.putExtra( AccountListActivity.NO_AUTO_LOGIN, true );
-            this.startActivity(go);
-            return true;
-        }
-        else if (id == R.id.settings)
-        {
-            Intent go = new Intent(this, SettingsActivity.class);
-            this.startActivity(go);
-            return true;
-        }
-        else if (id == R.id.recent)
-        {
-            Intent go = new Intent(this, RecentGradesActivity.class);
-            this.startActivity(go);
-            return true;
-        }
-        else if (id == R.id.missing)
-        {
-            Intent go = new Intent(this, MissingActivity.class);
-            this.startActivity(go);
-            return true;
-        }
-        else if (id == R.id.search)
-        {
-            Intent go = new Intent(this, SearchActivity.class);
-            go.putExtra(SELECTED_COURSE_ID, 0);
-            go.putExtra(ALL_CLASSES_ID, true);
-            this.startActivity(go);
+            Fragment fragment = new SearchFragment();
+            Bundle args = new Bundle();
+            args.putInt(SELECTED_COURSE_ID, 0);
+            args.putBoolean(ALL_CLASSES_ID, true);
+            fragment.setArguments(args);
+
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.content_frame, fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
             return true;
         }
         return super.onOptionsItemSelected(item);
