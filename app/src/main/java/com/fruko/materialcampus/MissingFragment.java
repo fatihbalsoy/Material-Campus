@@ -87,11 +87,7 @@ public class MissingFragment extends Fragment
                             }
                         }
                         fragment.setArguments(args);
-
-                        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                        transaction.replace(R.id.content_frame, fragment);
-                        transaction.addToBackStack(null);
-                        transaction.commit();
+                        ((MCActivity) getActivity()).changeFragment(fragment);
                     }
                 });
                 return view;

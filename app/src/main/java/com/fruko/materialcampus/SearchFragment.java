@@ -127,7 +127,8 @@ public class SearchFragment extends Fragment
                             @Override
                             public void onClick(View view)
                             {
-                                Intent intent = new Intent(getActivity(), AssignmentFragment.class);
+                                Fragment fragment = new AssignmentFragment();
+                                Bundle args = new Bundle();
                                 List<Course> courses = InfiniteCampusApi.getInstance().getUserInfo().getCourses();
                                 for (int i = 0; i < courses.size(); i++)
                                 {
@@ -140,16 +141,18 @@ public class SearchFragment extends Fragment
                                                 Activity activity = courses.get(i).tasks.get(j).getCategories().get(k).getActivites().get(l);
                                                 if (activity.getId().equals(results.get(position).getId()))
                                                 {
-                                                    intent.putExtra(SELECTED_COURSE_ID, i);
-                                                    intent.putExtra(SELECTED_CATEGORY_ID, k);
-                                                    intent.putExtra(SELECTED_ASSIGNMENT_ID, l);
-                                                    intent.putExtra(SELECTED_TASK_ID, j);
+                                                    args.putInt(SELECTED_COURSE_ID, i);
+                                                    args.putInt(SELECTED_CATEGORY_ID, k);
+                                                    args.putInt(SELECTED_ASSIGNMENT_ID, l);
+                                                    args.putInt(SELECTED_TASK_ID, j);
                                                 }
                                             }
                                         }
                                     }
                                 }
-                                startActivity(intent);
+                                fragment.setArguments(args);
+
+                                ((MCActivity) getActivity()).changeFragment(fragment);
                             }
                         });
                         return view;

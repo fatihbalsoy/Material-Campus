@@ -183,10 +183,7 @@ public class ClassGradesFragment extends Fragment
                             args.putInt(SELECTED_TASK_ID, Integer.parseInt(assignments.get(a + 1)[3]));
                             fragment.setArguments(args);
 
-                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                            transaction.replace(R.id.content_frame, fragment);
-                            transaction.addToBackStack(null);
-                            transaction.commit();
+                            ((MCActivity) getActivity()).changeFragment(fragment);
                         }
                     });
                     list.addView(child);
@@ -224,10 +221,7 @@ public class ClassGradesFragment extends Fragment
             args.putBoolean(ALL_CLASSES_ID, false);
             fragment.setArguments(args);
 
-            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.content_frame, fragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
+            ((MCActivity) getActivity()).changeFragment(fragment);
             return true;
         }
         return super.onOptionsItemSelected(item);

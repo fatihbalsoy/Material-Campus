@@ -5,4 +5,5 @@
     <color name="accent">#2196F3</color>
     <color name="accent_orange">#FF9800</color>
     <color name="divider">#12000000</color>
+    <color name="navdrawertext">#000000</color>
 </resources>

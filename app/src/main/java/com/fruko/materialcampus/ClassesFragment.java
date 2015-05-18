@@ -132,14 +132,11 @@ public class ClassesFragment extends Fragment
                     return;
 
                 Fragment fragment = new ClassGradesFragment();
-            Bundle args = new Bundle();
-            args.putInt(SELECTED_COURSE_ID, position);
-            fragment.setArguments(args);
+                Bundle args = new Bundle();
+                args.putInt(SELECTED_COURSE_ID, position);
+                fragment.setArguments(args);
 
-                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.content_frame, fragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                ((MCActivity) getActivity()).changeFragment(fragment);
             }
         });
 
@@ -196,10 +193,7 @@ public class ClassesFragment extends Fragment
             args.putBoolean(ALL_CLASSES_ID, true);
             fragment.setArguments(args);
 
-            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.content_frame, fragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
+            ((MCActivity) getActivity()).changeFragment(fragment);
             return true;
         }
         return super.onOptionsItemSelected(item);

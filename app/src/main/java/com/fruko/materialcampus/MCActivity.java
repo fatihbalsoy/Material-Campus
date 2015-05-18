@@ -1,8 +1,11 @@
 package com.fruko.materialcampus;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,7 +20,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
 
@@ -38,6 +44,7 @@ public class MCActivity extends ActionBarActivity
     };
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
+    private RelativeLayout image;
     private Toolbar toolbar;
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -53,15 +60,13 @@ public class MCActivity extends ActionBarActivity
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        image = (RelativeLayout) findViewById(R.id.image);
 
         mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.navdrawer_list_item, drawerItemTitles));
 
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, new ClassesFragment())
-                .commit();
+        changeFragment(new ClassesFragment());
 
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.open, R.string.closed)
         {
@@ -105,7 +110,6 @@ public class MCActivity extends ActionBarActivity
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @SuppressLint("NewApi")
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id)
         {
@@ -126,14 +130,20 @@ public class MCActivity extends ActionBarActivity
                     break;
             }
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(R.id.content_frame, fragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
+            changeFragment(fragment);
 
             // Highlight the selected item, update the title, and close the drawer
             mDrawerList.setItemChecked(position, true);
-            mDrawerLayout.closeDrawer(mDrawerList);
+            mDrawerLayout.closeDrawer((LinearLayout) findViewById(R.id.drawer));
         }
+    }
+
+    public void changeFragment(Fragment fragment)
+    {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_out_bottom, R.anim.abc_slide_in_bottom, R.anim.abc_slide_out_top);
+        transaction.replace(R.id.content_frame, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }
