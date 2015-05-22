@@ -44,6 +44,7 @@ public class RecentGradesFragment extends Fragment
     {
         view = inflater.inflate(R.layout.activity_recentgrades, container, false);
 
+        ((MCActivity) getActivity()).setUp(true);
         getActivity().setTitle("Recently Updated Grades");
 
         List<Activity> newAssignments = InfiniteCampusApi.getInstance().getUserInfo().getNewAssignments();

@@ -54,6 +54,7 @@ public class ClassGradesFragment extends Fragment
         position = getArguments().getInt(ClassesFragment.SELECTED_COURSE_ID, 0);
         course = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(position);
 
+        ((MCActivity) getActivity()).setUp(true);
         getActivity().setTitle(course.getCourseName() + " - " + new DecimalFormat("#.00").format(course.getPercent()) + "%");
 
         final List<List<String[]>> gradesArray = new ArrayList<>();

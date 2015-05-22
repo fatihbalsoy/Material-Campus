@@ -41,6 +41,7 @@ public class MissingFragment extends Fragment
         getActivity().setTitle("Missing Assignments");
         list = (ListView) view.findViewById(R.id.class_grades);
 
+        ((MCActivity) getActivity()).setUp(true);
         final List<Activity> missing = InfiniteCampusApi.getInstance().getAllMissingAssignments();
 
         list.setAdapter(new ArrayAdapter<Activity>(getActivity(), R.layout.missing_list_item, R.id.name, missing)

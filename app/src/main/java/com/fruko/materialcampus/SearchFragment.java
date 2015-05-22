@@ -46,6 +46,7 @@ public class SearchFragment extends Fragment
     {
         view = inflater.inflate(R.layout.activity_search, container, false);
 
+        ((MCActivity) getActivity()).setUp(true);
         course = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(getArguments().getInt(ClassGradesFragment.SELECTED_COURSE_ID, 0));
         allClasses = getArguments().getBoolean(ClassesFragment.ALL_CLASSES_ID, false);
 

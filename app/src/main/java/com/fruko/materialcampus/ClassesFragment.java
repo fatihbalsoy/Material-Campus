@@ -42,6 +42,7 @@ public class ClassesFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_classes, container, false);
 
+        ((MCActivity) getActivity()).setUp(false);
         getActivity().setTitle(InfiniteCampusApi.getInstance().getUserInfo().getFirstName() + ' ' + InfiniteCampusApi.getInstance().getUserInfo().getLastName());
         getCourseList();
 

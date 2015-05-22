@@ -48,6 +48,8 @@ public class MCActivity extends ActionBarActivity
     private Toolbar toolbar;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private boolean upEnabled = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,11 +100,18 @@ public class MCActivity extends ActionBarActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        if(!upEnabled)
+        {
+            if (mDrawerToggle.onOptionsItemSelected(item))
+            {
+                return true;
+            }
+        }
+        else if(item.getItemId() == android.R.id.home)
+        {
+            getSupportFragmentManager().popBackStack();
         }
         // Handle your other action bar items...
 
@@ -145,5 +154,12 @@ public class MCActivity extends ActionBarActivity
         transaction.replace(R.id.content_frame, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    public void setUp(boolean displayUp)
+    {
+        upEnabled = displayUp;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(displayUp);
+        mDrawerToggle.setDrawerIndicatorEnabled(!displayUp);
     }
 }

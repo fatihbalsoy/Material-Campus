@@ -37,6 +37,7 @@ public class AssignmentFragment extends Fragment
     {
         view = inflater.inflate(R.layout.activity_assignment, container, false);
 
+        ((MCActivity) getActivity()).setUp(true);
         int courseId = getArguments().getInt(ClassGradesFragment.SELECTED_COURSE_ID, 0);
         course = InfiniteCampusApi.getInstance().getUserInfo().getCourses().get(courseId);
         int task = getArguments().getInt(ClassGradesFragment.SELECTED_TASK_ID, 0);
