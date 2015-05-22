@@ -1,31 +1,27 @@
 package com.fruko.materialcampus;
 
-import android.annotation.SuppressLint;
-import android.app.ActionBar;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-import us.plxhack.InfiniteCampus.api.InfiniteCampusApi;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 /**
  * Created by mail929 on 5/16/15.
@@ -74,12 +70,12 @@ public class MCActivity extends ActionBarActivity
         {
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                invalidateOptionsMenu();
             }
 
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                invalidateOptionsMenu();
             }
         };
 
@@ -161,5 +157,70 @@ public class MCActivity extends ActionBarActivity
         upEnabled = displayUp;
         getSupportActionBar().setDisplayHomeAsUpEnabled(displayUp);
         mDrawerToggle.setDrawerIndicatorEnabled(!displayUp);
+    }
+
+    public static class AdFragment extends Fragment
+    {
+
+        private AdView mAdView;
+
+        public AdFragment()
+        {
+        }
+
+        @Override
+        public void onActivityCreated(Bundle bundle)
+        {
+            super.onActivityCreated(bundle);
+
+            mAdView = (AdView) getView().findViewById(R.id.adView);
+
+            // Create an ad request. Check logcat output for the hashed device ID to
+            // get test ads on a physical device. e.g.
+            // "Use AdRequest.Builder.addTestDevice("ABCDEF012345") to get test ads on this device."
+            AdRequest adRequest = new AdRequest.Builder()
+                    /*.addTestDevice("8F0E678B4BFECC3DF4FDBB0BC93BC803")*/.addTestDevice("ABCDEF012345")
+                    .build();
+
+            mAdView.loadAd(adRequest);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState)
+        {
+            return inflater.inflate(R.layout.fragment_ad, container, false);
+        }
+
+        @Override
+        public void onPause()
+        {
+            if (mAdView != null)
+            {
+                mAdView.pause();
+            }
+            super.onPause();
+        }
+
+        @Override
+        public void onResume()
+        {
+            super.onResume();
+            if (mAdView != null)
+            {
+                mAdView.resume();
+            }
+        }
+
+        @Override
+        public void onDestroy()
+        {
+            if (mAdView != null)
+            {
+                mAdView.destroy();
+            }
+            super.onDestroy();
+        }
+
     }
 }

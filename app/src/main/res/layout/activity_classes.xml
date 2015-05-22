@@ -17,5 +17,6 @@
             android:layout_gravity="center_horizontal"
             android:headerDividersEnabled="true"
             android:textSize="20sp"/>
+
     </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>
