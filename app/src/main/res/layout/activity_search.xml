@@ -11,7 +11,9 @@
         android:textCursorDrawable="@null"
         android:textColor="@android:color/white"
         android:background="@color/accent"
-        android:id="@+id/search"/>
+        android:id="@+id/search">
+        <requestFocus/>
+    </EditText>
 
     <ListView
         android:layout_width="match_parent"

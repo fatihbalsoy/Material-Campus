@@ -152,7 +152,6 @@ public class LoginActivity extends AccountAuthenticatorActivity
         }
         else
         {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
             login( district, username, password, mSavingInfo.isChecked() );
         }
     }

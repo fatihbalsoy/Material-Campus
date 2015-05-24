@@ -96,7 +96,6 @@ public class AccountListActivity extends ActionBarActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accountslist);
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         baseView = (LinearLayout)findViewById( R.id.accountslist_base );
 
