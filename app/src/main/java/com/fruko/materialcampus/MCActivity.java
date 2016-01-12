@@ -162,8 +162,10 @@ public class MCActivity extends ActionBarActivity
     public void setUp(boolean displayUp)
     {
         upEnabled = displayUp;
-        getSupportActionBar().setDisplayHomeAsUpEnabled(displayUp);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
         mDrawerToggle.setDrawerIndicatorEnabled(!displayUp);
+        mDrawerToggle.syncState();
     }
 
     public static class AdFragment extends Fragment
