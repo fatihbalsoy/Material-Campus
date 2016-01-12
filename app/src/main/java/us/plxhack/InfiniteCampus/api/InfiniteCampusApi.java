@@ -556,32 +556,39 @@ public class InfiniteCampusApi
             sb.append(line);
         }
 
-        JSONObject json = new JSONObject(sb.toString());
-
-        JSONArray jsonCourses = json.getJSONArray("courses");
-        for(int i = 0; i < jsonCourses.length(); i++)
+        if(!sb.toString().equals(""))
         {
-            JSONObject jsonCourse = jsonCourses.getJSONObject(i);
-            JSONArray jsonTasks = jsonCourse.getJSONArray("tasks");
-            for(int j = 0; j < jsonTasks.length(); j++)
+            JSONObject json = new JSONObject(sb.toString());
+
+            JSONArray jsonCourses = json.getJSONArray("courses");
+            for(int i = 0; i < jsonCourses.length(); i++)
             {
-                JSONObject jsonTask = jsonTasks.getJSONObject(j);
-                JSONArray jsonCategories = jsonTask.getJSONArray("categories");
-                for(int k = 0; k < jsonCategories.length(); k++)
+                JSONObject jsonCourse = jsonCourses.getJSONObject(i);
+                JSONArray jsonTasks = jsonCourse.getJSONArray("tasks");
+                for(int j = 0; j < jsonTasks.length(); j++)
                 {
-                    JSONObject jsonCategory = jsonCategories.getJSONObject(k);
-                    JSONArray jsonActivities = jsonCategory.getJSONArray("activities");
-                    for(int l = 0; l < jsonActivities.length(); l++)
+                    JSONObject jsonTask = jsonTasks.getJSONObject(j);
+                    JSONArray jsonCategories = jsonTask.getJSONArray("categories");
+                    for(int k = 0; k < jsonCategories.length(); k++)
                     {
-                        JSONObject jsonActivity = jsonActivities.getJSONObject(l);
-                        String id = jsonActivity.getString("id");
-                        if(id.equals(assignmentId))
+                        JSONObject jsonCategory = jsonCategories.getJSONObject(k);
+                        JSONArray jsonActivities = jsonCategory.getJSONArray("activities");
+                        for(int l = 0; l < jsonActivities.length(); l++)
                         {
-                            return jsonActivity;
+                            JSONObject jsonActivity = jsonActivities.getJSONObject(l);
+                            String id = jsonActivity.getString("id");
+                            if(id.equals(assignmentId))
+                            {
+                                return jsonActivity;
+                            }
                         }
                     }
                 }
             }
+        }
+        else
+        {
+            System.out.println("String is empty... ignoring");
         }
         return null;
     }

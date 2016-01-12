@@ -23,41 +23,74 @@ public class Course
 
     public Course(Element e)
     {
-        courseNumber = Integer.valueOf( e.getAttributeValue("courseNumber") );
+        courseNumber = Integer.valueOf(e.getAttributeValue("courseNumber"));
         courseName = formatCourseName(e.getAttributeValue("courseName"));
         System.out.println("Course Name " + courseName);
         teacher = new Teacher( e.getAttributeValue("teacherDisplay") );
-
-        Elements taskChildren = e.getFirstChildElement("tasks").getChildElements();
-        ArrayList<Element> stasks = new ArrayList<>();
-
-        for (int j=0;j < taskChildren.size(); j++)
+        try
         {
-            Element t = taskChildren.get(j);
+            Elements taskChildren = e.getFirstChildElement("tasks").getChildElements();
+            ArrayList<Element> stasks = new ArrayList<>();
 
-            if(t != null)
+            for (int j=0;j < taskChildren.size(); j++)
             {
-                if (taskChildren.get(j).getAttributeValue("name").equalsIgnoreCase("final"))
+                Element t = taskChildren.get(j);
+
+                if(t != null)
                 {
-                    percentage = Float.valueOf( t.getAttributeValue("percentage") );
-                    letterGrade = t.getAttributeValue("letterGrade");
+                    if (t.getAttributeValue("name").equalsIgnoreCase("final"))
+                    {
+                        percentage = Float.valueOf( t.getAttributeValue("percentage") );
+                        letterGrade = t.getAttributeValue("letterGrade");
+                    }
+                    if (t.getChildCount() != 0 && t.getAttributeValue("termName").equalsIgnoreCase( e.getAttributeValue("current_term") ))
+                    {
+                        Elements els = t.getChildElements();
+                        if(els.get(0).getLocalName().equals("groups"))
+                        {
+                            stasks.add( t );
+                        }
+                        else
+                        {
+                            Elements taskKids = t.getFirstChildElement("tasks").getChildElements();
+
+                            for (int k=0;k < taskKids.size(); k++) {
+                                Element x = taskKids.get(k);
+                                if (x != null) {
+                                    if (x.getChildCount() != 0 && x.getAttributeValue("termName").equalsIgnoreCase(e.getAttributeValue("current_term"))) {
+                                        stasks.add(x);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-                else if (taskChildren.get(j).getChildCount() != 0 && taskChildren.get(j).getAttributeValue("termName").equalsIgnoreCase( e.getAttributeValue("current_term") ))
+                else
                 {
-                    stasks.add( t );
+                    System.out.println("T is null");
+                }
+            }
+
+            tasks = new ArrayList<>();
+            for (int l=0;l < stasks.size();++l)
+            {
+                Element finalTaskGroups = stasks.get(l).getFirstChildElement("groups");
+
+                if(finalTaskGroups != null)
+                {
+                    tasks.add(new Task(stasks.get(l), finalTaskGroups, courseName));
+                    System.out.println("Task Name " + stasks.get(l).getAttributeValue("name"));
+                }
+                else
+                {
+                    System.out.println("Final task group is null");
                 }
             }
         }
-
-        tasks = new ArrayList<>();
-        for (int l=0;l < stasks.size();++l)
+        catch (NullPointerException n)
         {
-            Element finalTaskGroups = stasks.get(l).getFirstChildElement("groups");
-
-            if(finalTaskGroups != null)
-            {
-                tasks.add(new Task(stasks.get(l), finalTaskGroups, courseName));
-            }
+            System.out.println("Null pointer oops");
+            tasks = new ArrayList<>();
         }
 
     }
