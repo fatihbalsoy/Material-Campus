@@ -95,6 +95,29 @@ public class Course
 
     }
 
+    public static boolean isCurrentSemester(Element e)
+    {
+        try
+        {
+        Elements taskChildren = e.getFirstChildElement("tasks").getChildElements();
+        ArrayList<Element> stasks = new ArrayList<>();
+
+        for (int j=0;j < taskChildren.size(); j++) {
+            Element t = taskChildren.get(j);
+
+            if (t != null) {
+                if (t.getChildCount() != 0 && t.getAttributeValue("termName").equalsIgnoreCase(e.getAttributeValue("current_term"))) {
+                    return true;
+                }
+            }
+        }
+        }
+        catch (NullPointerException n)
+        {
+        }
+        return false;
+    }
+
     public Course(JSONObject jsonCourse) throws JSONException
     {
         JSONObject jsonTeacher = jsonCourse.getJSONObject("teacher");

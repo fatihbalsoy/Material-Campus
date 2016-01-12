@@ -182,7 +182,14 @@ public class InfiniteCampusApi
 
             if(e != null)
             {
-                courses.add(new Course(e));
+                if(Course.isCurrentSemester(e))
+                {
+                    courses.add(new Course(e));
+                }
+                else
+                {
+
+                }
             }
 
         }
