@@ -49,6 +49,8 @@ public class Course
                         if(els.get(0).getLocalName().equals("groups"))
                         {
                             stasks.add( t );
+                            percentage = Float.valueOf( t.getAttributeValue("percentage") );
+                            letterGrade = t.getAttributeValue("letterGrade");
                         }
                         else
                         {
