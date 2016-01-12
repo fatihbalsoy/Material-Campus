@@ -8,8 +8,8 @@ android {
         applicationId "com.fruko.materialcampus"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 25
-        versionName "Release 1.5.1"
+        versionCode 26
+        versionName "Release 1.5.2"
     }
     buildTypes {
         release {

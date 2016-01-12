@@ -29,7 +29,7 @@ public class SettingsFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         view = inflater.inflate(R.layout.activity_settings, container, false);
-
+        getActivity().setTitle("Settings");
         ((MCActivity) getActivity()).setUp(true);
         SharedPreferences settings = getActivity().getSharedPreferences("MaterialCampus", 0);
         final SharedPreferences.Editor editor = settings.edit();
