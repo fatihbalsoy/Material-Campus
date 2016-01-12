@@ -194,7 +194,7 @@ public class ClassesFragment extends Fragment
             args.putBoolean(ALL_CLASSES_ID, true);
             fragment.setArguments(args);
 
-            ((MCActivity) getActivity()).changeFragment(fragment);
+            ((MCActivity) getActivity()).changeFragmentSearch(fragment);
             return true;
         }
         return super.onOptionsItemSelected(item);
